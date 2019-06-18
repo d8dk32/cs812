@@ -1,0 +1,142 @@
+<head>
+<title> AST for arrayMultiD.t</title>
+</head>
+<body>
+<pre>
+CompilationUnit
+[classes]
+[main block]
+  MainIdentifierDeclarationStatement
+    (x, int[][])
+  ExpressionStatement
+    ASSIGN (int[][])
+    MainBlockIdentifier (int[][]) x
+    NewArray int 1
+      IntegerLiteral (int) 10
+  MainIdentifierDeclarationStatement
+    (i, int)
+  MainIdentifierDeclarationStatement
+    (j, int)
+  ExpressionStatement
+    ASSIGN (int)
+    MainBlockIdentifier (int) i
+    IntegerLiteral (int) 0
+  WhileStatement
+    LESS_THAN (int)
+    DEREF (int)
+    MainBlockIdentifier (int) i
+    IntegerLiteral (int) 10
+  Body
+    BlockStatement
+      ExpressionStatement
+        ArrayAssignment (int[])
+        DEREF (int[][])
+        MainBlockIdentifier (int[][]) x
+        DEREF (int)
+        MainBlockIdentifier (int) i
+        NewArray int 0
+          IntegerLiteral (int) 5
+      ExpressionStatement
+        ASSIGN (int)
+        MainBlockIdentifier (int) j
+        IntegerLiteral (int) 0
+      WhileStatement
+        LESS_THAN (int)
+        DEREF (int)
+        MainBlockIdentifier (int) j
+        IntegerLiteral (int) 5
+      Body
+        BlockStatement
+          ExpressionStatement
+            ArrayAssignment (int)
+            DEREF (int[])
+            ARRAY_ACCESS (int[])
+            DEREF (int[][])
+            MainBlockIdentifier (int[][]) x
+            DEREF (int)
+            MainBlockIdentifier (int) i
+            DEREF (int)
+            MainBlockIdentifier (int) j
+            ADD (int)
+            MULTIPLY (int)
+            DEREF (int)
+            MainBlockIdentifier (int) i
+            IntegerLiteral (int) 10
+            DEREF (int)
+            MainBlockIdentifier (int) j
+          ExpressionStatement
+            ASSIGN (int)
+            MainBlockIdentifier (int) j
+            ADD (int)
+            DEREF (int)
+            MainBlockIdentifier (int) j
+            IntegerLiteral (int) 1
+      ExpressionStatement
+        ASSIGN (int)
+        MainBlockIdentifier (int) i
+        ADD (int)
+        DEREF (int)
+        MainBlockIdentifier (int) i
+        IntegerLiteral (int) 1
+  MainIdentifierDeclarationStatement
+    (sum, int)
+  ExpressionStatement
+    ASSIGN (int)
+    MainBlockIdentifier (int) sum
+    IntegerLiteral (int) 0
+  ExpressionStatement
+    ASSIGN (int)
+    MainBlockIdentifier (int) i
+    IntegerLiteral (int) 0
+  WhileStatement
+    LESS_THAN (int)
+    DEREF (int)
+    MainBlockIdentifier (int) i
+    IntegerLiteral (int) 10
+  Body
+    BlockStatement
+      ExpressionStatement
+        ASSIGN (int)
+        MainBlockIdentifier (int) j
+        IntegerLiteral (int) 0
+      WhileStatement
+        LESS_THAN (int)
+        DEREF (int)
+        MainBlockIdentifier (int) j
+        IntegerLiteral (int) 5
+      Body
+        BlockStatement
+          ExpressionStatement
+            ASSIGN (int)
+            MainBlockIdentifier (int) sum
+            ADD (int)
+            DEREF (int)
+            MainBlockIdentifier (int) sum
+            DEREF (int)
+            ARRAY_ACCESS (int)
+            DEREF (int[])
+            ARRAY_ACCESS (int[])
+            DEREF (int[][])
+            MainBlockIdentifier (int[][]) x
+            DEREF (int)
+            MainBlockIdentifier (int) i
+            DEREF (int)
+            MainBlockIdentifier (int) j
+          ExpressionStatement
+            ASSIGN (int)
+            MainBlockIdentifier (int) j
+            ADD (int)
+            DEREF (int)
+            MainBlockIdentifier (int) j
+            IntegerLiteral (int) 1
+      ExpressionStatement
+        ASSIGN (int)
+        MainBlockIdentifier (int) i
+        ADD (int)
+        DEREF (int)
+        MainBlockIdentifier (int) i
+        IntegerLiteral (int) 1
+  OutputStatement
+    DEREF (int)
+    MainBlockIdentifier (int) sum
+</pre>

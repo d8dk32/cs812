@@ -1,0 +1,28 @@
+<head>
+<title> AST for notConstants.t</title>
+</head>
+<body>
+<pre>
+CompilationUnit
+[classes]
+[main block]
+  OutputStatement
+    NOT (int) 
+    IntegerLiteral (int) 42
+  OutputStatement
+    NOT (int) 
+    NOT (int) 
+    IntegerLiteral (int) 42
+  Declaration: int
+    Identifier x int
+  ExpressionStatement: 
+    Assignment: x
+      IntegerLiteral (int) 1
+  OutputStatement
+    NOT (int) 
+    Identifier x int
+  OutputStatement
+    NOT (int) 
+    NOT (int) 
+    Identifier x int
+</pre>

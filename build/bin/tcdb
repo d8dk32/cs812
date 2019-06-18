@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# debug the T compiler
+#
+
+TC_ROOT="/home/lee/Documents/cs812/tc"
+# disable the JAVA_TOOL_OPTIONS environment variable that exists on agate
+unset JAVA_TOOL_OPTIONS
+
+# -Xmx limits the heap size to be a good citizen on agate
+jdb -Xmx256m -classpath "$TC_ROOT/build/packages:$TC_ROOT/build/lib/antlr.jar" -sourcepath "$TC_ROOT/compiler" tc.compiler.Main $@

@@ -1,0 +1,202 @@
+#!/bin/bash
+
+# compile a T program
+#
+# accepts the following arguments along with a single T source file,
+# which must have the *.t extension:
+#
+# -AST: dump the AST
+# -ST: dump the symbol table
+# -noAnalyze: disable semantic analysis and code generation
+# -noLLVM: do not run LLVM
+# -log: display UNH Go compiler log messages
+# -ll: keep the *.ll file (LLVM assembly file)
+# -bc: keep the *.bc file (LLVM bytecode file)
+# -s: keep the *.s file (Intel assembly file)
+# -o outFile: specify the name of the output (executable) file
+#
+#
+
+
+
+TC_ROOT="/home/lee/Documents/cs812/tc"
+
+# scan the commandline arguments and set flags
+KEEPLL=0
+KEEPBC=0
+KEEPS=0
+OUTF=""
+GRABF=0
+FILE=""
+FILESEEN=0
+AST=""
+CT=""
+LOG=""
+NOANALYZE=""
+OSEEN=0
+NASEEN=0
+NLSEEN=0
+for var in "$@"
+do
+  PROCESS=0
+  if [ $GRABF -eq 1 ]
+  then
+    OUTF=$var
+    GRABF=0
+    PROCESS=1
+  else
+    if [ $var == "-AST" ]
+    then
+      AST=$var
+      PROCESS=1
+    elif [ $var == "-CT" ]
+    then
+      CT=$var
+      PROCESS=1
+    elif [ $var == "-log" ]
+    then
+      LOG=$var
+      PROCESS=1
+    elif [ $var == "-noAnalyze" ]
+    then
+      NOANALYZE=$var
+      NASEEN=1
+      PROCESS=1
+    elif [ $var == "-noLLVM" ]
+    then
+      NLSEEN=1
+      PROCESS=1
+    elif [ $var == "-ll" ]
+    then
+      KEEPLL=1
+      PROCESS=1
+    elif [ $var == "-bc" ]
+    then
+      KEEPBC=1
+      PROCESS=1
+    elif [ $var == "-s" ]
+    then
+      KEEPS=1
+      PROCESS=1
+    elif [ $var == "-o" ]
+    then
+      PROCESS=1
+      if [ $OSEEN -eq 1 ]
+      then
+        echo "duplicate -o argument!"
+        exit -1
+      fi
+      GRABF=1
+      OSEEN=1
+    else
+      EXT=${var:(-2)}
+      if [ $EXT == ".t" ]
+      then
+        PROCESS=1
+        if [ $FILESEEN -eq 1 ]
+        then
+          echo "more than one input file specified!"
+          exit -1
+        fi
+        FILE=$var
+        FILESEEN=1
+        let BASELEN=${#FILE}-2
+        BASE=${FILE:0:$BASELEN}
+      fi
+    fi
+  fi
+  if [ $PROCESS -eq 0 ]
+  then
+    echo "bad flag: $var"
+    exit -1
+  fi
+done
+
+# check to be sure a *.t file was provided
+if [ $FILESEEN -eq 0 ]
+then
+  echo "no T source file provided!"
+  exit -1
+fi
+
+# this script only works with simple file names, not full paths
+# so rule out any slashes in the input file name
+if [[ $FILE =~ .*\/.* ]]
+then
+  echo "no slashes allowed in input filenames!"
+  exit -1
+fi
+
+# output file name will be the "a.out"
+# unless the user provided the -o argument with a filename
+if [ $OSEEN -eq 0 ]
+then
+  OUTF="a.out"
+fi
+
+# check for output file being the same as the input file
+# could happen to a misplaced -o argument
+if [ $OUTF == $FILE ]
+then
+  echo "output filename the same as input filename?!"
+  exit -1
+fi
+
+# first run the T compiler
+#
+# disable the JAVA_TOOL_OPTIONS environment variable that exists on agate
+unset JAVA_TOOL_OPTIONS
+# -Xmx limits the heap size to be a good citizen on agate
+java -Xmx256m -ea -cp "$TC_ROOT/build/packages:$TC_ROOT/build/lib/antlr.jar" tc.compiler.Main $AST $CT $LOG $NOANALYZE $FILE
+if [ $? -ne 0 ]
+then
+  exit
+fi
+if [ $NASEEN -eq 1 ]
+then
+  exit
+fi
+if [ $NLSEEN -eq 1 ]
+then
+  exit
+fi
+
+# generate LLVM bytecode
+llvm-as $BASE.ll
+if [ $? -ne 0 ]
+then
+  exit
+fi
+
+# delete the *.ll file unless the user asked for it to be kept
+if [ $KEEPLL -eq 0 ]
+then
+  rm $BASE.ll
+fi
+
+# generate Intel assembly code
+llc $BASE.bc
+if [ $? -ne 0 ]
+then
+  exit
+fi
+
+# delete the *.bc file unless the user asked for it to be kept
+if [ $KEEPBC -eq 0 ]
+then
+  rm $BASE.bc
+fi
+
+# assemble, link and generate executable
+gcc $BASE.s $TC_ROOT/build/lib/runtime.a -o $OUTF
+if [ $? -ne 0 ]
+then
+  exit
+fi
+
+# delete the *.s file unless the user asked for it to be kept
+if [ $KEEPS -eq 0 ]
+then
+  rm $BASE.s
+fi
+

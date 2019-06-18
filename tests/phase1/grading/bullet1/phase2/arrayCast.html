@@ -1,0 +1,57 @@
+<head>
+<title> AST for arrayCast.t</title>
+</head>
+<body>
+<pre>
+CompilationUnit
+[classes]
+[main block]
+  MainIdentifierDeclarationStatement
+    (x1, int[])
+    (x2, int[])
+  MainIdentifierDeclarationStatement
+    (y1, int[][])
+    (y2, int[][])
+  MainIdentifierDeclarationStatement
+    (i, int)
+  ExpressionStatement
+    ASSIGN (int[])
+    MainBlockIdentifier (int[]) x1
+    NO_OP (int[])
+    DEREF (int[])
+    MainBlockIdentifier (int[]) x2
+  ExpressionStatement
+    ASSIGN (int[][])
+    MainBlockIdentifier (int[][]) y1
+    NO_OP (int[][])
+    DEREF (int[][])
+    MainBlockIdentifier (int[][]) y2
+  ExpressionStatement
+    ASSIGN ([error])
+    DEREF (int[])
+    MainBlockIdentifier (int[]) x1
+    CastOperator ([error])
+    DEREF (int[][])
+    MainBlockIdentifier (int[][]) y1
+  ExpressionStatement
+    ASSIGN ([error])
+    DEREF (int[][])
+    MainBlockIdentifier (int[][]) y1
+    CastOperator ([error])
+    DEREF (int[])
+    MainBlockIdentifier (int[]) x1
+  ExpressionStatement
+    ASSIGN ([error])
+    DEREF (int[])
+    MainBlockIdentifier (int[]) x1
+    CastOperator ([error])
+    DEREF (int)
+    MainBlockIdentifier (int) i
+  ExpressionStatement
+    ASSIGN ([error])
+    DEREF (int[][])
+    MainBlockIdentifier (int[][]) y1
+    CastOperator ([error])
+    DEREF (int)
+    MainBlockIdentifier (int) i
+</pre>

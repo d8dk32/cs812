@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# run the ANTLR generated parser in debug mode
+#

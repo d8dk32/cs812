@@ -1,0 +1,132 @@
+<head>
+<title> AST for if.t</title>
+</head>
+<body>
+<pre>
+CompilationUnit
+[classes]
+[main block]
+  Declaration: int
+    Identifier x int
+  IF:
+    Identifier x int
+  THEN:
+    OutputStatement
+      IntegerLiteral (int) 0
+  ELSE:
+    OutputStatement
+      IntegerLiteral (int) 1
+  ExpressionStatement: 
+    Assignment: x
+      IntegerLiteral (int) 1
+  IF:
+    Identifier x int
+  THEN:
+    OutputStatement
+      IntegerLiteral (int) 0
+  ELSE:
+    OutputStatement
+      IntegerLiteral (int) 1
+  ExpressionStatement: 
+    Assignment: x
+      IntegerLiteral (int) 0
+  IF:
+    Identifier x int
+  THEN:
+    OutputStatement
+      IntegerLiteral (int) 2
+  ELSE:
+    Empty Statement...
+  ExpressionStatement: 
+    Assignment: x
+      IntegerLiteral (int) 1
+  IF:
+    Identifier x int
+  THEN:
+    OutputStatement
+      IntegerLiteral (int) 3
+  ELSE:
+    Empty Statement...
+  IF:
+    Identifier x int
+  THEN:
+    IF:
+      Identifier x int
+    THEN:
+      OutputStatement
+        IntegerLiteral (int) 4
+    ELSE:
+      OutputStatement
+        IntegerLiteral (int) 5
+  ELSE:
+    OutputStatement
+      IntegerLiteral (int) 6
+  IF:
+    Identifier x int
+  THEN:
+    OutputStatement
+      IntegerLiteral (int) 7
+  ELSE:
+    IF:
+      Identifier x int
+    THEN:
+      OutputStatement
+        IntegerLiteral (int) 8
+    ELSE:
+      OutputStatement
+        IntegerLiteral (int) 9
+  ExpressionStatement: 
+    Assignment: x
+      IntegerLiteral (int) 0
+  IF:
+    Identifier x int
+  THEN:
+    OutputStatement
+      IntegerLiteral (int) 10
+  ELSE:
+    IF:
+      Identifier x int
+    THEN:
+      OutputStatement
+        IntegerLiteral (int) 11
+    ELSE:
+      OutputStatement
+        IntegerLiteral (int) 12
+  IF:
+    Identifier x int
+  THEN:
+    Start Block -> 
+      OutputStatement
+        IntegerLiteral (int) 13
+      OutputStatement
+        IntegerLiteral (int) 14
+    End Block <- 
+  ELSE:
+    Start Block -> 
+      OutputStatement
+        IntegerLiteral (int) 15
+      OutputStatement
+        IntegerLiteral (int) 16
+    End Block <- 
+  ExpressionStatement: 
+    Assignment: x
+      IntegerLiteral (int) 1
+  IF:
+    Identifier x int
+  THEN:
+    Start Block -> 
+    End Block <- 
+  ELSE:
+    Start Block -> 
+    End Block <- 
+  IF:
+    Identifier x int
+  THEN:
+    Start Block -> 
+      OutputStatement
+        IntegerLiteral (int) 17
+    End Block <- 
+  ELSE:
+    Start Block -> 
+    End Block <- 
+</pre>

@@ -1,0 +1,105 @@
+<head>
+<title> AST for precedence.t</title>
+</head>
+<body>
+<pre>
+CompilationUnit
+[classes]
+[main block]
+  OutputStatement
+    ADD (int) 
+    IntegerLiteral (int) 2
+    MULTIPLY (int) 
+    IntegerLiteral (int) 2
+    IntegerLiteral (int) 20
+  OutputStatement
+    SUBTRACT (int) 
+    IntegerLiteral (int) 62
+    MULTIPLY (int) 
+    IntegerLiteral (int) 2
+    IntegerLiteral (int) 10
+  OutputStatement
+    ADD (int) 
+    IntegerLiteral (int) 2
+    DIVIDE (int) 
+    IntegerLiteral (int) 80
+    IntegerLiteral (int) 2
+  OutputStatement
+    SUBTRACT (int) 
+    IntegerLiteral (int) 52
+    DIVIDE (int) 
+    IntegerLiteral (int) 20
+    IntegerLiteral (int) 2
+  OutputStatement
+    ADD (int) 
+    NEGATE (int) 
+    IntegerLiteral (int) 2
+    IntegerLiteral (int) 44
+  OutputStatement
+    NEGATE (int) 
+    SUBTRACT (int) 
+    NEGATE (int) 
+    IntegerLiteral (int) 20
+    IntegerLiteral (int) 22
+  OutputStatement
+    ADD (int) 
+    NOT (int) 
+    IntegerLiteral (int) 0
+    IntegerLiteral (int) 41
+  OutputStatement
+    ADD (int) 
+    GREATERTHAN (int) 
+    GREATERTHAN (int) 
+    IntegerLiteral (int) 6
+    ADD (int) 
+    IntegerLiteral (int) 5
+    IntegerLiteral (int) 6
+    IntegerLiteral (int) 1
+    IntegerLiteral (int) 42
+  OutputStatement
+    ADD (int) 
+    GREATERTHAN (int) 
+    GREATERTHAN (int) 
+    IntegerLiteral (int) 6
+    SUBTRACT (int) 
+    IntegerLiteral (int) 5
+    IntegerLiteral (int) 2
+    IntegerLiteral (int) 0
+    IntegerLiteral (int) 41
+  OutputStatement
+    ADD (int) 
+    GREATERTHAN (int) 
+    GREATERTHAN (int) 
+    IntegerLiteral (int) 6
+    MULTIPLY (int) 
+    IntegerLiteral (int) 5
+    IntegerLiteral (int) 6
+    IntegerLiteral (int) 1
+    IntegerLiteral (int) 42
+  OutputStatement
+    ADD (int) 
+    GREATERTHAN (int) 
+    GREATERTHAN (int) 
+    IntegerLiteral (int) 6
+    DIVIDE (int) 
+    IntegerLiteral (int) 5
+    IntegerLiteral (int) 2
+    IntegerLiteral (int) 0
+    IntegerLiteral (int) 41
+  OutputStatement
+    ADD (int) 
+    EQUALITY (int) 
+    IntegerLiteral (int) 1
+    GREATERTHAN (int) 
+    IntegerLiteral (int) 6
+    IntegerLiteral (int) 3
+    IntegerLiteral (int) 41
+  OutputStatement
+    ADD (int) 
+    EQUALITY (int) 
+    IntegerLiteral (int) 0
+    LESSTHAN (int) 
+    IntegerLiteral (int) 3
+    IntegerLiteral (int) 0
+    IntegerLiteral (int) 41
+</pre>

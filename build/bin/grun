@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# run the ANTLR generated parser in debug mode
+#
+TC_ROOT="/home/lee/Documents/cs812/tc"
+# disable the JAVA_TOOL_OPTIONS environment variable that exists on agate
+unset JAVA_TOOL_OPTIONS
+
+java -cp ".:$TC_ROOT/build/packages:$TC_ROOT/build/lib/antlr.jar" org.antlr.v4.gui.TestRig $@
+

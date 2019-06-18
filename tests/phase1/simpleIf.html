@@ -1,0 +1,30 @@
+<head>
+<title> AST for simpleIf.t</title>
+</head>
+<body>
+<pre>
+CompilationUnit
+[classes]
+[main block]
+  Declaration: int
+    Identifier x int
+  ExpressionStatement: 
+    Assignment: x
+      IntegerLiteral (int) 1
+  IF:
+    Identifier x int
+  THEN:
+    Start Block -> 
+      OutputStatement
+        IntegerLiteral (int) 13
+      OutputStatement
+        IntegerLiteral (int) 14
+    End Block <- 
+  ELSE:
+    Start Block -> 
+      OutputStatement
+        IntegerLiteral (int) 15
+      OutputStatement
+        IntegerLiteral (int) 16
+    End Block <- 
+</pre>

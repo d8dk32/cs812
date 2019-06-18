@@ -1,0 +1,172 @@
+<head>
+<title> AST for arrayRuntimeAssign.t</title>
+</head>
+<body>
+<pre>
+CompilationUnit
+[classes]
+[main block]
+  MainIdentifierDeclarationStatement
+    (x2, int[][])
+  MainIdentifierDeclarationStatement
+    (x3, int[][][])
+  MainIdentifierDeclarationStatement
+    (o, Object[])
+  ExpressionStatement
+    ASSIGN (int[][][])
+    MainBlockIdentifier (int[][][]) x3
+    NewArray int 2
+      IntegerLiteral (int) 2
+  MainIdentifierDeclarationStatement
+    (i, int)
+    (j, int)
+  ExpressionStatement
+    ASSIGN (int)
+    MainBlockIdentifier (int) i
+    IntegerLiteral (int) 0
+  WhileStatement
+    LESS_THAN (int)
+    DEREF (int)
+    MainBlockIdentifier (int) i
+    IntegerLiteral (int) 2
+  Body
+    BlockStatement
+      ExpressionStatement
+        ArrayAssignment (int[][])
+        DEREF (int[][][])
+        MainBlockIdentifier (int[][][]) x3
+        DEREF (int)
+        MainBlockIdentifier (int) i
+        NewArray int 1
+          IntegerLiteral (int) 5
+      ExpressionStatement
+        ASSIGN (int)
+        MainBlockIdentifier (int) j
+        IntegerLiteral (int) 0
+      WhileStatement
+        LESS_THAN (int)
+        DEREF (int)
+        MainBlockIdentifier (int) j
+        IntegerLiteral (int) 5
+      Body
+        BlockStatement
+          ExpressionStatement
+            ArrayAssignment (int[])
+            DEREF (int[][])
+            ARRAY_ACCESS (int[][])
+            DEREF (int[][][])
+            MainBlockIdentifier (int[][][]) x3
+            DEREF (int)
+            MainBlockIdentifier (int) i
+            DEREF (int)
+            MainBlockIdentifier (int) j
+            NewArray int 0
+              IntegerLiteral (int) 10
+          ExpressionStatement
+            ASSIGN (int)
+            MainBlockIdentifier (int) j
+            ADD (int)
+            DEREF (int)
+            MainBlockIdentifier (int) j
+            IntegerLiteral (int) 1
+      ExpressionStatement
+        ASSIGN (int)
+        MainBlockIdentifier (int) i
+        ADD (int)
+        DEREF (int)
+        MainBlockIdentifier (int) i
+        IntegerLiteral (int) 1
+  ExpressionStatement
+    ArrayAssignment (int)
+    DEREF (int[])
+    ARRAY_ACCESS (int[])
+    DEREF (int[][])
+    ARRAY_ACCESS (int[][])
+    DEREF (int[][][])
+    MainBlockIdentifier (int[][][]) x3
+    IntegerLiteral (int) 1
+    IntegerLiteral (int) 3
+    IntegerLiteral (int) 5
+    IntegerLiteral (int) 15
+  OutputStatement
+    DEREF (int)
+    ARRAY_ACCESS (int)
+    DEREF (int[])
+    ARRAY_ACCESS (int[])
+    DEREF (int[][])
+    ARRAY_ACCESS (int[][])
+    DEREF (int[][][])
+    MainBlockIdentifier (int[][][]) x3
+    IntegerLiteral (int) 1
+    IntegerLiteral (int) 3
+    IntegerLiteral (int) 5
+  ExpressionStatement
+    ASSIGN (Object[])
+    MainBlockIdentifier (Object[]) o
+    DEREF (int[][][])
+    MainBlockIdentifier (int[][][]) x3
+  ExpressionStatement
+    ASSIGN (int[][])
+    MainBlockIdentifier (int[][]) x2
+    NewArray int 1
+      IntegerLiteral (int) 6
+  ExpressionStatement
+    ArrayAssignment (Object)
+    DEREF (Object[])
+    MainBlockIdentifier (Object[]) o
+    IntegerLiteral (int) 1
+    DEREF (int[][])
+    MainBlockIdentifier (int[][]) x2
+  ExpressionStatement
+    ASSIGN (int)
+    MainBlockIdentifier (int) j
+    IntegerLiteral (int) 0
+  WhileStatement
+    LESS_THAN (int)
+    DEREF (int)
+    MainBlockIdentifier (int) j
+    IntegerLiteral (int) 6
+  Body
+    BlockStatement
+      ExpressionStatement
+        ArrayAssignment (int[])
+        DEREF (int[][])
+        MainBlockIdentifier (int[][]) x2
+        DEREF (int)
+        MainBlockIdentifier (int) j
+        NewArray int 0
+          IntegerLiteral (int) 9
+      ExpressionStatement
+        ASSIGN (int)
+        MainBlockIdentifier (int) j
+        ADD (int)
+        DEREF (int)
+        MainBlockIdentifier (int) j
+        IntegerLiteral (int) 1
+  ExpressionStatement
+    ArrayAssignment (Object)
+    DEREF (Object[])
+    MainBlockIdentifier (Object[]) o
+    IntegerLiteral (int) 1
+    DEREF (int[][])
+    MainBlockIdentifier (int[][]) x2
+  OutputStatement
+    DEREF (int)
+    ARRAY_ACCESS (int)
+    DEREF (int[])
+    ARRAY_ACCESS (int[])
+    DEREF (int[][])
+    ARRAY_ACCESS (int[][])
+    DEREF (int[][][])
+    MainBlockIdentifier (int[][][]) x3
+    IntegerLiteral (int) 1
+    IntegerLiteral (int) 3
+    IntegerLiteral (int) 5
+  ExpressionStatement
+    ArrayAssignment (Object)
+    DEREF (Object[])
+    MainBlockIdentifier (Object[]) o
+    IntegerLiteral (int) 1
+    NewArray int 0
+      IntegerLiteral (int) 3
+</pre>

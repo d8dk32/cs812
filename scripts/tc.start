@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# compile a T program
+#
+# accepts the following arguments along with a single T source file,
+# which must have the *.t extension:
+#
+# -AST: dump the AST
+# -ST: dump the symbol table
+# -noAnalyze: disable semantic analysis and code generation
+# -noLLVM: do not run LLVM
+# -log: display UNH Go compiler log messages
+# -ll: keep the *.ll file (LLVM assembly file)
+# -bc: keep the *.bc file (LLVM bytecode file)
+# -s: keep the *.s file (Intel assembly file)
+# -o outFile: specify the name of the output (executable) file
+#
+#
+
+
+

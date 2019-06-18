@@ -1,0 +1,25 @@
+<head>
+<title> AST for assign4.t</title>
+</head>
+<body>
+<pre>
+CompilationUnit
+[classes]
+[main block]
+  Declaration: int
+    Identifier i int
+  Declaration: int
+    Identifier j int
+  ExpressionStatement: 
+    Assignment: j
+      IntegerLiteral (int) 5
+  ExpressionStatement: 
+    Assignment: i
+      Identifier j int
+  OutputStatement
+    Identifier i int
+  OutputStatement
+    NEGATE (int) 
+    NEGATE (int) 
+    Identifier j int
+</pre>
