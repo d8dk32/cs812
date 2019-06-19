@@ -1,0 +1,39 @@
+<head>
+<title> AST for arrayCreation.t</title>
+</head>
+<body>
+<pre>
+CompilationUnit
+[classes]
+[main block]
+  Declaration: int
+    Identifier i int
+  ExpressionStatement: 
+    Assignment: i
+      IntegerLiteral (int) 19
+  Declaration: int[]
+    Identifier x int
+  Declaration: int[][]
+    Identifier y int
+  Declaration: int[][][]
+    Identifier z int
+  ExpressionStatement: 
+    Assignment: x
+      Array Creation: [
+        Identifier i int
+        ]
+  ExpressionStatement: 
+    Assignment: y
+      Array Creation: [
+        ADD (int) 
+        Identifier i int
+        IntegerLiteral (int) 1
+        ][]
+  ExpressionStatement: 
+    Assignment: z
+      Array Creation: [
+        ADD (int) 
+        Identifier i int
+        IntegerLiteral (int) 2
+        ][][]
+</pre>
