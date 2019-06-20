@@ -1,6 +1,6 @@
 ; source file: arrayCreation.t
 ; T version: 1.0
-; compiled: Tue Jun 18 22:30:58 EDT 2019
+; compiled: Wed Jun 19 21:33:44 EDT 2019
 
 ; declarations for the runtime support functions
 declare void @t_rt_alloc_init()
@@ -46,7 +46,7 @@ define void @main() {
   %temp3 = call i8* (i32, i8*, i32, i32) @t_rt_new_array( i32 11, i8* %temp2, i32 1, i32 %temp0)
   %temp1 = bitcast i8* %temp3 to %array$int*
   ; store assigned value
-  store %array$int* %temp1, i32* %x
+  store %array$int* %temp1, %array$int** %x
   ; load value from variable
   %temp4 = load i32, i32* %i
   ; add
@@ -56,7 +56,7 @@ define void @main() {
   %temp8 = call i8* (i32, i8*, i32, i32) @t_rt_new_array( i32 12, i8* %temp7, i32 2, i32 %temp5)
   %temp6 = bitcast i8* %temp8 to %array$int*
   ; store assigned value
-  store %array$int* %temp6, i32* %y
+  store %array$int* %temp6, %array$int** %y
   ; load value from variable
   %temp9 = load i32, i32* %i
   ; add
@@ -66,6 +66,6 @@ define void @main() {
   %temp13 = call i8* (i32, i8*, i32, i32) @t_rt_new_array( i32 13, i8* %temp12, i32 3, i32 %temp10)
   %temp11 = bitcast i8* %temp13 to %array$int*
   ; store assigned value
-  store %array$int* %temp11, i32* %z
+  store %array$int* %temp11, %array$int** %z
   ret void
 }
