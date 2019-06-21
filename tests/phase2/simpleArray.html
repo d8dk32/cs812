@@ -1,0 +1,37 @@
+<head>
+<title> AST for simpleArray.t</title>
+</head>
+<body>
+<pre>
+CompilationUnit
+[classes]
+[main block]
+  Declaration: int[]
+    Identifier x
+  ExpressionStatement: 
+    Assignment: 
+      Identifier x
+      Array Creation: [
+        IntegerLiteral (int) 10
+        ]
+  ExpressionStatement: 
+    Assignment: 
+      ArrayAccess: 
+        array: 
+        Identifier x
+        address: 
+        IntegerLiteral (int) 5
+      IntegerLiteral (int) 5
+  OutputStatement
+    ArrayAccess: 
+      array: 
+      Identifier x
+      address: 
+      IntegerLiteral (int) 0
+  OutputStatement
+    ArrayAccess: 
+      array: 
+      Identifier x
+      address: 
+      IntegerLiteral (int) 5
+</pre>
