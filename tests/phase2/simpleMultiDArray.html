@@ -8,8 +8,6 @@ CompilationUnit
 [main block]
   Declaration: int[][]
     Identifier x
-  Declaration: int[]
-    Identifier y
   ExpressionStatement: 
     Assignment: 
       Identifier x
@@ -18,46 +16,14 @@ CompilationUnit
         ][]
   ExpressionStatement: 
     Assignment: 
-      Identifier y
-      Array Creation: [
-        IntegerLiteral (int) 3
-        ]
-  ExpressionStatement: 
-    Assignment: 
-      ArrayAccess: 
-        array: 
-        Identifier y
-        address: 
-        IntegerLiteral (int) 0
-      IntegerLiteral (int) 42
-  OutputStatement
-    ArrayAccess: 
-      array: 
-      Identifier y
-      address: 
-      IntegerLiteral (int) 0
-  ExpressionStatement: 
-    Assignment: 
       ArrayAccess: 
         array: 
         Identifier x
         address: 
         IntegerLiteral (int) 4
-      Identifier y
-  OutputStatement
-    ArrayAccess: 
-      array: 
-      Identifier y
-      address: 
-      IntegerLiteral (int) 0
-  ExpressionStatement: 
-    Assignment: 
-      ArrayAccess: 
-        array: 
-        Identifier y
-        address: 
-        IntegerLiteral (int) 1
-      IntegerLiteral (int) 42
+      Array Creation: [
+        IntegerLiteral (int) 3
+        ]
   ExpressionStatement: 
     Assignment: 
       ArrayAccess: 
@@ -77,7 +43,7 @@ CompilationUnit
         array: 
         Identifier x
         address: 
-        IntegerLiteral (int) 3
+        IntegerLiteral (int) 4
       address: 
       IntegerLiteral (int) 2
 </pre>

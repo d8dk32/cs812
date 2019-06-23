@@ -1,6 +1,6 @@
 package tc.compiler.tree;
 
-import tc.compiler.tree.Identifier;
+import tc.compiler.tree.type.*;
 
 /* An interface to help out when variables or whatever are on the left hand side,
  * like of an assignment expression
@@ -17,5 +17,9 @@ public interface LeftSide {
      */
     public void setLeftSide(boolean isLs);
 
-    public String getName();
+    /**
+     * @return the type of this lhs
+     */    
+    public Type getType();
+
 }

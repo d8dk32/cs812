@@ -21,14 +21,14 @@ public class ArrayCreationExpression extends Expression
   /** Construct an array creation expression node. 
    *
    *  @param loc source code location of the node.
-   *  @param t the type of the array getting created
+   *  @param t the component type of the array getting created
    *  @param dimExpr the expression inside the first dimension
    *  @param numDims the number of dimensions on the array being craeted
    */
   public ArrayCreationExpression(final Location loc, Type t, Expression dimExpr, Integer numDims)
   {
     super(loc);
-    this.type = t;
+    this.type = new ArrayType(t.toString(), numDims.intValue());
     this.dimExpr = dimExpr;
     this.numDims = numDims;
   }

@@ -26,7 +26,39 @@ void *t_rt_alloc(int64_t n, int32_t lineNumber)
 }
 
 //allocate memory for array
-void 
+void *t_rt_new_intarray(int32_t lineNumber, void* runtimeType, int32_t numDims, int32_t lengthSpecified)
+{
+  if(lengthSpecified < 0)
+  {
+    fprintf(stderr, "ERROR: negative array length (line %d).\n", lineNumber);
+    exit(-1);
+  }
+  intArray *ret = t_rt_alloc(sizeof(intArray) + sizeof(int32_t) * lengthSpecified, lineNumber);
+  
+  ret->runtimeType = runtimeType;
+  ret->numDims = numDims;
+  ret->length = lengthSpecified;
+
+  return ret;
+}
+
+void *t_rt_new_refarray(int32_t lineNumber, void* runtimeType, int32_t numDims, int32_t lengthSpecified)
+{
+  if(lengthSpecified < 0)
+  {
+    fprintf(stderr, "ERROR: negative array length (line %d).\n", lineNumber);
+    exit(-1);
+  }
+
+  refArray *ret = (refArray *) t_rt_alloc(sizeof(refArray) + sizeof(int8_t *) * lengthSpecified, lineNumber);
+
+  ret->runtimeType = runtimeType;
+  ret->numDims = numDims;
+  ret->length = lengthSpecified;
+
+  return ret;
+}
+
 
 // deallocate space for an object or an array
 void t_rt_dealloc(void *ref)

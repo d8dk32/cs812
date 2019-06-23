@@ -202,7 +202,10 @@ public final class Encode extends TreeVisitorBase<String>
 
     emit("declare void @t_rt_print_int(i32)");
     emit("declare void @t_rt_print_divide_by_zero_error(i32)");
-    emit("declare void @t_rt_new_array(i32, i8*, i32, i32, ...)");
+    emit("declare void @t_rt_print_array_index_out_of_bounds_error(i32)");
+    emit("declare void @t_rt_print_null_ref_error(i32)");
+    emit("declare i8* @t_rt_new_intarray(i32, i8*, i32, i32)");
+    emit("declare i8* @t_rt_new_refarray(i32, i8*, i32, i32)");
     emit("");
 
     // get all the class names
@@ -233,8 +236,8 @@ public final class Encode extends TreeVisitorBase<String>
     emit("");
 
     emit(";array type");
-    emit("%array$int = type { i8*, i8* i32, i32, [0 x i32] }");
-    emit("%array$ref = type { i8*, i8* i32, i32, [0 x i8*] }");
+    emit("%array$int = type { i8*, i8*, i32, i32, [0 x i32] }");
+    emit("%array$ref = type { i8*, i8*, i32, i32, [0 x i8*] }");
 
 
     // generate LLVM class types
@@ -315,19 +318,16 @@ public final class Encode extends TreeVisitorBase<String>
     //String varType = variable.getType().encode();
     String pointer = "%" + id;
 
-    //if the identifier has not been defined, bug out.
-    if (symbolTable.get(identifier.getName()) == null)
-    {
-      Message.fatal("undefined variable " + identifier.getName());
-    }
-
     //If the identifier is not the lefthand side of an assignment, 
     //actually return a var that holds the real value contained in this variable
     if (!identifier.isLeftSide())
     {
       String temp = getTemp();
       emit("; load value from variable");
-      emit(temp + " = load " + identifier.getType().encode() + ", " + identifier.getType().encode() + "* " + pointer);
+      if (symbolTable.get(id).getDepth() == 0)
+        emit(temp + " = load " + identifier.getType().encode() + ", " + identifier.getType().encode() + "* " + pointer);
+      else if (symbolTable.get(id).getDepth() > 0) 
+        emit(temp + " = load " + identifier.getType().encode() + "*, " + identifier.getType().encode() + "** " + pointer);
       return temp;
     }
 
@@ -342,32 +342,55 @@ public final class Encode extends TreeVisitorBase<String>
     for(int x = 0; x < declStatement.getDeclarations().size(); x++)
     {
       Identifier i = declStatement.getDeclarations().get(x);
-      //store entity in symbol table? 
-      if (symbolTable.get(i.getName()) == null)
+      Integer depth = declStatement.getDimensionList().get(x);
+      
+      Type varType = null;
+      if (declStatement.getType() == "int")
       {
-        //if its not already been declared, add it to the symbol table
-        symbolTable.put(i.getName(),
-              new TypeDepthPair(declStatement.getType(), declStatement.getDimensionList().get(x)));     
-
-        //get variable name and type
-        final String declPointer = visitNode(i);
-        final String type = declStatement.getType().encode();
-
-        if(symbolTable.get(i.getName()).getDepth() == 0)
+        if(depth > 0)
         {
-          //declare the variable in llvm code
-          emit("; declaration statement");
-          emit(declPointer + " = alloca " + type);
-          emit("; store 0 on declaration");
-          emit("store " + type + " " + '0' + ", " + type + "* " + declPointer);  
-        } else {
-          //declare the array in the llvm code
-          //ONLY SUPPORTS INT ARRAYS ATM
-          emit("; array declaration statement");
-          emit(declPointer + "  = alloca %array$int*");
-          emit("store %array$int* null, %array$int** " + declPointer);
+          varType = new ArrayType("int", depth);
         }
-      }  
+        else
+        {
+          varType = IntegerType.getInstance();
+        }
+      }
+      else
+      {
+          //must be some kind of class type
+          Message.error(declStatement.getLoc(), "unsupported variable type");
+      }
+      symbolTable.put(i.getName(),
+            new TypeDepthPair(varType, depth));     
+
+      //get variable name and type
+      final String declPointer = visitNode(i);
+      final String type = varType.encode();
+
+      if(depth == 0)
+      {
+        //declare the variable in llvm code
+        emit("; declaration statement");
+        emit(declPointer + " = alloca " + type);
+        emit("; store 0 on declaration");
+        emit("store " + type + " " + '0' + ", " + type + "* " + declPointer);  
+      } else if (depth == 1) {
+        //declare the array in the llvm code
+        //ONLY SUPPORTS INT ARRAYS ATM
+        emit("; array declaration statement");
+        emit(declPointer + "  = alloca %array$int*");
+        emit("store %array$int* null, %array$int** " + declPointer);
+      }
+      else {
+        //declare the array in the llvm code
+        //ONLY SUPPORTS INT ARRAYS ATM
+        //multidimensional int arrays are refs?
+        emit("; array declaration statement");
+        emit(declPointer + "  = alloca %array$ref*");
+        emit("store %array$ref* null, %array$ref** " + declPointer);
+      }
+        
     }
 
     return null;
@@ -376,11 +399,33 @@ public final class Encode extends TreeVisitorBase<String>
   /** visit assignment node */
   @Override public String visit(final Assignment assignment) {
     final String result = visitNode(assignment.getExpression());
-    //final String assignmentType = assignment.getExpression().getType().encode();
-    final String id = visitNode((Identifier) assignment.getIdentifier());
+    String assignmentType = assignment.getExpression().getType().encode();
+    if(assignment.getExpression().getType().isArrayType())
+    {
+      assignmentType = assignmentType + "*"; //arrays need an extra asterisk
+    }
+
+    //cast LeftSide to its real type
+    String id = null; 
+
+    if(assignment.getIdentifier() instanceof Identifier)
+    { 
+      id = visitNode((Identifier) assignment.getIdentifier());
+     }
+    else if (assignment.getIdentifier() instanceof ArrayAccess)
+    { 
+      id = visitNode((ArrayAccess) assignment.getIdentifier()); 
+      if( ((ArrayAccess) assignment.getIdentifier()).getBaseType().getDepth() > 1 )
+      {
+        String temp = id;
+        id = getTemp();
+        emit(id + " = bitcast i8** " + temp + " to " + assignmentType + "*");
+      }
+    }
+    
 
     emit("; store assigned value");
-    emit("store " + "i32" + " " + result + ", " + "i32" + "* " + id);
+    emit("store " + assignmentType + " " + result + ", " + assignmentType + "* " + id);
 
     return result;
   }
@@ -481,18 +526,129 @@ public final class Encode extends TreeVisitorBase<String>
   @Override public String visit(final ArrayCreationExpression ace)
   {
     String dimExpr = visitNode(ace.getDimExpr());
-    String arrayDepth = ace.getDepth();
-    String elemType = ace.getType().encodeRuntimeType();
+    String arrayDepth = ace.getNumDims().toString();
+    String elemType = ((ArrayType) ace.getType()).encodeComponentRuntimeType();
+    String varType = ace.getType().encode();
     String retval = getTemp();
     String temp1 = getTemp();
     String temp2 = getTemp();
+    String arrLenPtr = getTemp();
+    String arrDimsPtr = getTemp();
+    String arrTypePtr = getTemp();
 
     emit("; array creation");
-    emit(temp1 + " = bitcast [1 x i8*]* " + elemType() + " to i8*");
-    emit(temp2 + " = call i8* (i32, i8*, i32, i32, ...) @t_rt_new_array( i32 " +
-          ace.getLoc().getLine() + ", i8* " + temp1 + ", i32 " + arrayDepth + ", i32 1, i32 " + dimExpr);
-    emit(retval + " = bitcast i8* " + temp2 + " to %array$int*");
+    emit(temp1 + " = bitcast [1 x i8*]* " + elemType + " to i8*");
+    
+    if(ace.getNumDims() == 1)
+    {
+      emit(temp2 + " = call i8* (i32, i8*, i32, i32) @t_rt_new_intarray( i32 " +
+          ace.getLoc().getLine() + ", i8* " + temp1 + ", i32 " + arrayDepth + ", i32 " + dimExpr + ")");
+    } else {
+      emit(temp2 + " = call i8* (i32, i8*, i32, i32) @t_rt_new_refarray( i32 " +
+          ace.getLoc().getLine() + ", i8* " + temp1 + ", i32 " + arrayDepth + ", i32 " + dimExpr + ")");
+    }
+    
+    emit(retval + " = bitcast i8* " + temp2 + " to " + ace.getType().encode() + "*");
+    //c runtime func doesn't seem to be storing struct entries properly so I'll do it myself
+    emit("; manually store len/dims/type because the new_array func isn't doing it like I expected");
+    emit(arrLenPtr + " = getelementptr " + varType + ", " + varType + "* " + retval + ", i32 0, i32 3");
+    emit(arrDimsPtr + " = getelementptr " + varType + ", " + varType + "* " + retval + ", i32 0, i32 2");
+    emit(arrTypePtr + " = getelementptr " + varType + ", " + varType + "* " + retval + ", i32 0, i32 1");
+    emit("store i32 " + dimExpr + ", i32* " + arrLenPtr);
+    emit("store i32 " + arrayDepth + ", i32* " + arrDimsPtr);
+    emit("store i8* " + temp1 + ", i8** " + arrTypePtr);
+
     return retval;
+  }
+
+  /** visit an ArrayAccess node */
+  @Override public String visit(final ArrayAccess aa)
+  {
+    String theArray = visitNode(aa.getTheArray());
+    //String varType = aa.getTheArray().getType().encode();
+    String varType = aa.getBaseType().encode();
+    String arrIndex = visitNode(aa.getDimExpr());
+
+    //necessary temps
+    String arrayPtr = getTemp();
+    String elementPtr = getTemp();
+    String nullCheckTemp = getTemp();
+    String arrLenPtr = getTemp();
+    String arrLen = getTemp();
+    String greaterThanZero = getTemp();
+    String lessThanLen = getTemp();
+    String theElement = getTemp();
+
+    //necessary labels
+    String nullLabel = getLabel();
+    String greaterThanZeroLabel = getLabel();
+    String lessThanLenLabel = getLabel();
+    String accessLabel = getLabel();
+    String outOfBoundsLabel = getLabel();
+
+    emit("; array access");
+
+    emit("; check for null reference");
+    emit(nullCheckTemp + " = icmp eq " + varType + "* " + theArray + ", null");
+    emit("br i1 " + nullCheckTemp + ", label %" + nullLabel + ", label %" + greaterThanZeroLabel);
+    emit(nullLabel + ":");
+    emit("call void @t_rt_print_null_ref_error(i32 " + aa.getLoc().getLine() + ")");
+    emit("br label %" + greaterThanZeroLabel);
+    emit("; check that index is greater than or equal to 0");
+    emit(greaterThanZeroLabel + ":");
+    emit(arrLenPtr + " = getelementptr " + varType + ", " + varType + "* " + theArray + ", i32 0, i32 3");
+    emit(arrLen + " = load i32, i32* " + arrLenPtr);
+    emit(greaterThanZero + " = icmp sge i32 " + arrIndex + ", 0");
+    emit("br i1 " + greaterThanZero + ", label %" + lessThanLenLabel + ", label %" + outOfBoundsLabel);
+    emit("; check index is less than array length");
+    emit(lessThanLenLabel + ":");
+    emit(lessThanLen + " = icmp slt i32 " + arrIndex + ", " + arrLen);
+    emit("br i1 " + lessThanLen + ", label %" + accessLabel + ", label %" + outOfBoundsLabel);
+    emit(outOfBoundsLabel + ":"); 
+    emit("call void @t_rt_print_array_index_out_of_bounds_error(i32 " + aa.getLoc().getLine() + ")");
+    emit("br label %" + accessLabel);
+
+    emit("; perform actual array access");
+    emit(accessLabel + ":");
+    emit(arrayPtr + " = getelementptr " + varType + ", " + varType + "* " + theArray + ", i32 0, i32 4");
+
+    Message.log("arr access at line" + aa.getLoc().getLine() + " arr index " + arrIndex);
+    ArrayType baseType = aa.getBaseType();
+    int arrDepth = baseType.getDepth();
+
+    if(arrDepth == 1)
+      emit(elementPtr + " = getelementptr [0 x i32], [0 x i32]* " + arrayPtr + ", i32 0, i32 " + arrIndex);
+    else if (arrDepth > 1)
+      emit(elementPtr + " = getelementptr [0 x i8*], [0 x i8*]* " + arrayPtr + ", i32 0, i32 " + arrIndex);
+  
+    if(aa.isLeftSide())
+      return elementPtr;
+    
+    if (arrDepth == 1)
+    {
+      emit(theElement + " = load i32, i32* " + elementPtr);
+      return theElement;
+    }
+    else if (arrDepth > 1)
+    {
+      String retval = getTemp();
+      emit(theElement + " = load i8*, i8** " + elementPtr);
+
+      if(aa.getLayer() > 1)
+        emit(retval + " = bitcast i8* " + theElement + " to " + baseType.encode() + "*");
+      else
+      {
+        String retTemp = getTemp();
+        emit(retTemp + " = bitcast i8* " + theElement + " to " + aa.getType().encode()+ "*" );
+        emit(retval + " = load " + aa.getType().encode() + ", " + aa.getType().encode()+ "*" + retTemp);
+      }
+      return retval;
+    }
+
+    //if it hits here and returns null there is a problem, like
+    //it thinks its an array but the depth is 0
+    Message.bug(aa.getLoc(), "Trying to index into a variable that isn't an array");
+    return null;
   }
 
 }

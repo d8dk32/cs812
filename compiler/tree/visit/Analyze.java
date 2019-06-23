@@ -184,8 +184,15 @@ public final class Analyze extends TreeVisitorBase<Tree>
 
   //visit variable node
   @Override public Tree visit(final Identifier identifier) {
-    Type type = symbolTable.get(identifier.getName()).getType();
-    identifier.setType(type);
+    //if the identifier has not been defined, bug out.
+    if (symbolTable.get(identifier.getName()) == null)
+    {
+      Message.error(identifier.getLoc(), "undefined variable " + identifier.getName());
+    }
+    else{
+      Type type = symbolTable.get(identifier.getName()).getType();
+      identifier.setType(type);
+    }
     return identifier;
   }
 
@@ -196,10 +203,37 @@ public final class Analyze extends TreeVisitorBase<Tree>
     for(int x = 0; x < declStatement.getDeclarations().size(); x++)
     {
       Identifier i = declStatement.getDeclarations().get(x);
+      Integer depth = declStatement.getDimensionList().get(x);
       //put variable in symbol table
-      symbolTable.put(i.getName(), 
-            new TypeDepthPair(declStatement.getType(), declStatement.getDimensionList().get(x))); 
-      Identifier nId = (Identifier) visitNode(i);
+      Type varType = null;
+      if (declStatement.getType() == "int")
+      {
+        if(depth > 0)
+        {
+          varType = new ArrayType("int", depth);
+        }
+        else
+        {
+          varType = IntegerType.getInstance();
+        }
+      }
+      else
+      {
+          //must be some kind of class type
+          Message.error(declStatement.getLoc(), "unsupported variable type");
+      }
+      if (symbolTable.get(i.getName()) == null)
+      {
+        symbolTable.put(i.getName(), 
+              new TypeDepthPair(varType, depth)); 
+      }
+      else
+      {
+          Message.error(declStatement.getLoc(), "Duplicate declaration of main block variable " + i.getName());
+      }
+
+      visitNode(i);
+      
     }
 
     return declStatement;
@@ -209,8 +243,12 @@ public final class Analyze extends TreeVisitorBase<Tree>
   @Override public Tree visit(final Assignment assignment) {
 
     //visit its child nodes
-    assignment.setIdentifier((LeftSide) visitNode((Expression) assignment.getIdentifier()));
-    assignment.setExpression((Expression) visitNode(assignment.getExpression()));    
+    if(assignment.getIdentifier() instanceof Identifier)
+      { visitNode((Identifier) assignment.getIdentifier()); }
+    else if (assignment.getIdentifier() instanceof ArrayAccess)
+      { visitNode((ArrayAccess) assignment.getIdentifier()); }
+    
+    visitNode(assignment.getExpression());    
   
 
     return assignment;
@@ -277,6 +315,53 @@ public final class Analyze extends TreeVisitorBase<Tree>
       Message.error(ace.getLoc(), "integer expression expected for array length");
     }
     return ace;
+  }
+
+  /** visit an ArrayAccess node */
+  @Override public Tree visit(final ArrayAccess aa)
+  {
+    Expression theArray = aa.getTheArray();
+    visitNode(theArray);
+    Type arrayComponentType = ErrorType.getInstance();
+    int line = aa.getLoc().getLine();
+    if(theArray instanceof Identifier)
+    {
+      TypeDepthPair idTDP = symbolTable.get(((Identifier) theArray).getName());
+      aa.setBaseType((ArrayType) idTDP.getType());
+      aa.setLayer(idTDP.getDepth());
+      if(idTDP.getDepth() < 1)
+      { 
+        Message.error(aa.getLoc(), "Variable not defined as an array"); 
+      }
+      else if (idTDP.getType().isArrayType())
+      {
+        if( ((ArrayType) idTDP.getType()).getComponentType() == "int")
+        {
+          arrayComponentType = IntegerType.getInstance();
+        }
+        //ELSE IT'S PROBABLY A CLASS TYPE, but I'm not supporting that yet 
+      }
+      
+    }
+    else 
+    {
+      //if it's not an identifier of some kind, it's another arrayAccess
+      //just match the type, the inner array access is floating the type
+      //up to the out ones
+      arrayComponentType = theArray.getType();
+      aa.setBaseType( ((ArrayAccess) theArray).getBaseType());
+      aa.setLayer( ((ArrayAccess) theArray).getLayer() - 1 );
+    }
+    aa.setType(arrayComponentType);
+    Message.log("aa.type: " + aa.getType().encode() + ", " + line);
+    Message.log("theArray.type: " + theArray.getType().encode() + ", " + line);
+    visitNode(aa.getDimExpr());
+    if(!aa.getDimExpr().getType().isIntegerType())
+    {
+      Message.error(aa.getLoc(), "Array index must be of integer type");
+    }
+
+    return aa;
   }
 
 }

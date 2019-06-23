@@ -61,5 +61,6 @@ public final class IntegerType extends Type
   {
     return "int";
   }
+
 }
 

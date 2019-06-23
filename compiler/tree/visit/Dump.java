@@ -133,7 +133,7 @@ public final class Dump extends TreeVisitorBase<Void>
   //visit variable node
   @Override public Void visit(final Identifier identifier)
   {
-    emit("Identifier " + identifier.getName() + " " + identifier.getType());
+    emit("Identifier " + identifier.getName());
     return null;
   }
 
@@ -175,12 +175,17 @@ public final class Dump extends TreeVisitorBase<Void>
 
   /*visit assignment node
   */
-  @Override public Void visit(final Assignment assgn) {
+  @Override public Void visit(final Assignment assignment) {
 
     //visit its child nodes
-    emit("Assignment: " + assgn.getIdentifier().getName());
+    emit("Assignment: ");
     indentation += increment;
-    visitNode(assgn.getExpression());
+    //visit its child nodes
+    if(assignment.getIdentifier() instanceof Identifier)
+      { visitNode((Identifier) assignment.getIdentifier()); }
+    else if (assignment.getIdentifier() instanceof ArrayAccess)
+      { visitNode((ArrayAccess) assignment.getIdentifier()); }
+    visitNode(assignment.getExpression());
     indentation -= increment;
 
     return null;
@@ -270,6 +275,19 @@ public final class Dump extends TreeVisitorBase<Void>
     indentation += increment;
     visitNode(ace.getDimExpr());
     emit("]" + dimString);
+    indentation -= increment;
+    return null;
+  }
+
+  /** visit and array access node */
+  @Override public Void visit(final ArrayAccess aa)
+  {
+    emit("ArrayAccess: ");
+    indentation += increment;
+    emit("array: ");
+    visitNode(aa.getTheArray());
+    emit("address: ");
+    visitNode(aa.getDimExpr());
     indentation -= increment;
     return null;
   }

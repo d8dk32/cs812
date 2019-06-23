@@ -151,9 +151,9 @@ outputStatement
 declarationStatement
   returns [ DeclarationStatement lval ]
   : at=arrayType d1=declarations SEMICOLON
-    { $lval = buildDeclarationStatement(loc($start), new ArrayType($at.lval, $at.dval), $d1.lval, $d1.ivals);}
+    { $lval = buildDeclarationStatement(loc($start), $at.lval, $at.dval, $d1.lval, $d1.ivals);}
   | INT d=declarations SEMICOLON
-    { $lval = buildDeclarationStatement(loc($start), IntegerType.getInstance(), $d.lval, $d.ivals); }
+    { $lval = buildDeclarationStatement(loc($start), "int", 0, $d.lval, $d.ivals); }
   ;
 
 declarations
@@ -200,8 +200,16 @@ assignmentExpression
 
 assignment
   returns [ Assignment lval ]
-  : i=identifier EQUALS ae=assignmentExpression
-    { $i.lval.setLeftSide(true); $lval = buildAssignment(loc($start), $i.lval, $ae.lval); }
+  : lhs=leftHandSide EQUALS ae=assignmentExpression
+    { $lval = buildAssignment(loc($start), $lhs.lval, $ae.lval); }
+  ;
+
+leftHandSide
+  returns [ LeftSide lval ]
+  : i=identifier
+    { $i.lval.setLeftSide(true); $lval = $i.lval; }
+  | aa=arrayAccess
+    { $aa.lval.setLeftSide(true); $lval = $aa.lval; }
   ;
 
 equalityExpression
@@ -272,6 +280,8 @@ primaryNoNewArray
   returns [ Expression lval ]
   : pe=parenExpression
     { $lval = $pe.lval; }
+  | aa=arrayAccess
+    { $lval = $aa.lval; }
   | l=literal
     { $lval = $l.lval; }
   ;
@@ -297,7 +307,9 @@ identifier
 arrayCreationExpression
   returns [ ArrayCreationExpression lval ]
   : NEW INT de=dimensionExpression d=dimensions
-    { $lval = buildArrayCreationExpression(loc($start), new ArrayType(IntegerType.getInstance(), new Integer($d.lval + 1)), $de.lval, new Integer($d.lval + 1)); }
+    { $lval = buildArrayCreationExpression(loc($start), IntegerType.getInstance(), $de.lval, new Integer($d.lval + 1)); }
+  | NEW INT de=dimensionExpression
+    { $lval = buildArrayCreationExpression(loc($start), IntegerType.getInstance(), $de.lval, new Integer(1)); }
   ;
 
 arrayType
@@ -324,6 +336,14 @@ dimension
   returns [ int lval ]
   : LSQBRACK RSQBRACK
     { $lval = 1; }
+  ;
+
+arrayAccess
+  returns [ ArrayAccess lval ]
+  : i=identifier de1=dimensionExpression
+    { $lval = buildArrayAccess(loc($start), $i.lval, $de1.lval); }
+  | aa=arrayAccess de2=dimensionExpression
+    { $lval = buildArrayAccess(loc($start), $aa.lval, $de2.lval); }
   ;
 
 // fragments to support the lexer rules

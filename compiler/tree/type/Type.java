@@ -62,5 +62,15 @@ public abstract class Type
     return null;
   }
 
+  public boolean isArrayType()
+  {
+    return false;
+  }
+
+  public int getDepth()
+  {
+    return 0;
+  }
+
 }
 

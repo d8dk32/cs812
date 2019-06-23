@@ -9,7 +9,8 @@ CompilationUnit
   Declaration: int
     Identifier x int
   ExpressionStatement: 
-    Assignment: x
+    Assignment: 
+      Identifier x int
       IntegerLiteral (int) 10
   While:
   Identifier x int
@@ -17,7 +18,8 @@ CompilationUnit
       OutputStatement
         Identifier x int
       ExpressionStatement: 
-        Assignment: x
+        Assignment: 
+          Identifier x int
           ADD (int) 
           Identifier x int
           NEGATE (int) 
@@ -37,7 +39,8 @@ CompilationUnit
     Start Block -> 
     End Block <- 
   ExpressionStatement: 
-    Assignment: x
+    Assignment: 
+      Identifier x int
       IntegerLiteral (int) 5
   Declaration: int
     Identifier y int
@@ -45,7 +48,8 @@ CompilationUnit
   Identifier x int
     Start Block -> 
       ExpressionStatement: 
-        Assignment: y
+        Assignment: 
+          Identifier y int
           Identifier x int
       While:
       Identifier y int
@@ -55,7 +59,8 @@ CompilationUnit
             Identifier x int
             Identifier y int
           ExpressionStatement: 
-            Assignment: y
+            Assignment: 
+              Identifier y int
               ADD (int) 
               Identifier y int
               NEGATE (int) 
@@ -64,7 +69,8 @@ CompilationUnit
       OutputStatement
         IntegerLiteral (int) 1999
       ExpressionStatement: 
-        Assignment: x
+        Assignment: 
+          Identifier x int
           ADD (int) 
           Identifier x int
           NEGATE (int) 

@@ -93,4 +93,8 @@ public final class Identifier extends Expression implements LeftSide
          this.isLeftSide = isLs;
      }
 
+    @Override public Type getType()
+    {
+        return super.getType();
+    }
 }

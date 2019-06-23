@@ -21,13 +21,20 @@ public final class ArrayType extends ReferenceType
    */
   @Override public String encode()
   {
-    return this.componentType;
+    if(componentType == "int" && depth == 1)
+    {
+      return "%array$int";
+    }
+    else
+    {
+      return "%array$ref";
+    }
   }
 
   /** get the array nesting depth 
   * @return the depth
   */
-  public int getDepth()
+  @Override public int getDepth()
   {
     return this.depth;
   }
@@ -45,14 +52,30 @@ public final class ArrayType extends ReferenceType
    */
   @Override public String encodeRuntimeType()
   {
+    return "@arrayVMT";
+  }
+
+  public String encodeComponentRuntimeType()
+  {
     return "@" + this.componentType + "VMT";
+  }
+
+  public String encodeComponentType()
+  {
+    if(this.componentType == "int")
+      return "i32";
+    else 
+    {
+      //it must be some kind of reference type like a class
+      return null;
+    }
   }
 
   /** This is an ArrayType.
    *
    *  @return true
    */
-  public boolean isArrayType()
+  @Override public boolean isArrayType()
   {
     return true;
   }
@@ -63,6 +86,20 @@ public final class ArrayType extends ReferenceType
   @Override public String toString()
   {
     return this.componentType;
+  }
+
+  public String getComponentType()
+  {
+    return this.componentType;
+  }
+
+  /* utility method for determing if 2 array types are 'equal' */
+  public boolean compareArrayTypes(ArrayType aa)
+  {
+    boolean result = false;
+    if(aa.getComponentType() == this.componentType && aa.getDepth() == this.depth)
+    { result = true; }
+    return result;
   }
 }
 

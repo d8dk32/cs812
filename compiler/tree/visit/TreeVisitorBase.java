@@ -162,5 +162,11 @@ public class TreeVisitorBase<T> implements TreeVisitor<T>
   {
     return null;
   }
+
+  /** Visit an arrayCreationExpression. Override to provide specific behavior. */
+  @Override public T visit(final ArrayAccess arrayAccess)
+  {
+    return null;
+  }
 }
 

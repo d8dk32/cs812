@@ -92,6 +92,9 @@ public final class TreeBuilder
     } else if (left instanceof Identifier)
     {
       ((Identifier) left).setParentIsUnaryMinus();
+    } else if (left instanceof ArrayAccess)
+    {
+      ((ArrayAccess) left).setParentIsUnaryMinus();
     }
     return new UnaryOperator(loc, op, left);
   }
@@ -110,18 +113,18 @@ public final class TreeBuilder
     * @param loc location in source code
     * @param decList a list of names being declared
     * @param type the type of the entitity being declared
+    * @param addDims the number of additional dimensions being tacked on (i.e int[][][] means addDims = 3)
     * @param dimList a list of dimensions (array depth) for each variable declared. 
     * @return tree node for declaration statement
    */
-   public static DeclarationStatement buildDeclarationStatement(final Location loc, Type type, List<Identifier> decList, List<Integer> dimList)
+   public static DeclarationStatement buildDeclarationStatement(final Location loc, String type, int addDims, List<Identifier> decList, List<Integer> dimList)
    {
      //return declarationStatemtnes node
      for(Identifier i : decList)
      {
        i.setLeftSide(true);
-       i.setType(type);
      }
-     return new DeclarationStatement(loc, type, decList, dimList);
+     return new DeclarationStatement(loc, type, addDims, decList, dimList);
    }
 
    /** Build assignment expression node
@@ -212,12 +215,25 @@ public final class TreeBuilder
     *  @param type the type of the array getting created
     *  @param dimExpr the expression inside the first dimension
     *  @param numDims the number of dimensions on the array being craeted
-    * @return a Continue statement tree node
+    * @return a ArrayCreationExpression tree node
    */
   public static ArrayCreationExpression buildArrayCreationExpression(final Location loc, final Type type, Expression dimExpr, Integer numDims)
   {
     return new ArrayCreationExpression(loc, type, dimExpr, numDims);
   }
+
+  /**build new array access expression
+    * @param loc the location in the source code
+    *  @param arr the array being accessed
+    *  @param dimExpr the address into this array
+    * @return an ArrayAccess expression tree node
+   */
+  public static ArrayAccess buildArrayAccess(final Location loc, final Expression arr, Expression dimExpr)
+  {
+    return new ArrayAccess(loc, arr, dimExpr);
+  }
+
+
 
 
 

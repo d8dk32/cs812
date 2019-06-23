@@ -43,5 +43,7 @@ public interface TreeVisitor<T>
   T visit(ContinueStatement continueStatement);
 
   T visit(ArrayCreationExpression arrayCreationExpr);
+
+  T visit(ArrayAccess arrayAccess);
 }
 

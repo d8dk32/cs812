@@ -13,34 +13,29 @@ import java.util.ArrayList;
  */
 public final class DeclarationStatement extends Statement
 {
-    private Type type;
+    private String type;
     private List<Identifier> declarations;
     private List<Integer> dimList;
+    private int addDims;
 
     /** Create a statement tree node
      * @param loc location in source code
      * @param type type of declarations
+     * @param addDims the number of additional dimensions tacked on (i.e int[][] will have addDims = 2)
      * @param decls list of entities being declared
      * @param dimList list of dimensions associated with array type vars
      */
-     public DeclarationStatement(final Location loc, final Type type, final List<Identifier> decls, final List<Integer> dimList)
+     public DeclarationStatement(final Location loc, final String type, int addDims, final List<Identifier> decls, final List<Integer> dimList)
      {
          super(loc);
          this.type = type;
          this.declarations = decls;
          this.dimList = new ArrayList<Integer>();
+         this.addDims = addDims;
          
          //build the dimension list with the correct array depths
          for(int i = 0; i < dimList.size(); i++)
          {
-            int addDims = 0; 
-
-            //if the overall type of the declarattion is an array, add its specified depth to
-            //the depth of the individual declaration
-            if (type instanceof ArrayType)
-            {
-                addDims = ((ArrayType) type).getDepth();
-            }
             this.dimList.add(new Integer(dimList.get(i).intValue() + addDims));
          }
      }
@@ -48,7 +43,7 @@ public final class DeclarationStatement extends Statement
      /** get type of declarations
      * @return Type
       */
-    public Type getType() 
+    public String getType() 
     {
         return this.type;
     }
