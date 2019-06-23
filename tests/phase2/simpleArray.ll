@@ -1,6 +1,6 @@
 ; source file: simpleArray.t
 ; T version: 1.0
-; compiled: Sat Jun 22 17:13:12 EDT 2019
+; compiled: Sun Jun 23 13:08:12 EDT 2019
 
 ; declarations for the runtime support functions
 declare void @t_rt_alloc_init()
@@ -34,6 +34,13 @@ define void @main() {
   %temp1 = bitcast [1 x i8*]* @intVMT to i8*
   %temp2 = call i8* (i32, i8*, i32, i32) @t_rt_new_intarray( i32 4, i8* %temp1, i32 1, i32 10)
   %temp0 = bitcast i8* %temp2 to %array$int*
+  ; manually store len/dims/type because the new_array func isn't doing it like I expected
+  %temp3 = getelementptr %array$int, %array$int* %temp0, i32 0, i32 3
+  %temp4 = getelementptr %array$int, %array$int* %temp0, i32 0, i32 2
+  %temp5 = getelementptr %array$int, %array$int* %temp0, i32 0, i32 1
+  store i32 10, i32* %temp3
+  store i32 1, i32* %temp4
+  store i8* %temp1, i8** %temp5
   ; store assigned value
   store %array$int* %temp0, %array$int** %x
   ; load value from variable
@@ -49,11 +56,13 @@ define void @main() {
   label1:
   %temp10 = getelementptr %array$int, %array$int* %temp6, i32 0, i32 3
   %temp11 = load i32, i32* %temp10
+  call void @t_rt_print_int(i32 %temp11)
+  call void @t_rt_print_int(i32 5)
   %temp12 = icmp sge i32 5, 0
   br i1 %temp12, label %label2, label %label4
   ; check index is less than array length
   label2:
-  %temp13 = icmp slt i32 5, %temp11
+  %temp13 = icmp sle i32 5, %temp11
   br i1 %temp13, label %label3, label %label4
   label4:
   call void @t_rt_print_array_index_out_of_bounds_error(i32 5)
@@ -77,11 +86,13 @@ define void @main() {
   label6:
   %temp19 = getelementptr %array$int, %array$int* %temp15, i32 0, i32 3
   %temp20 = load i32, i32* %temp19
+  call void @t_rt_print_int(i32 %temp20)
+  call void @t_rt_print_int(i32 0)
   %temp21 = icmp sge i32 0, 0
   br i1 %temp21, label %label7, label %label9
   ; check index is less than array length
   label7:
-  %temp22 = icmp slt i32 0, %temp20
+  %temp22 = icmp sle i32 0, %temp20
   br i1 %temp22, label %label8, label %label9
   label9:
   call void @t_rt_print_array_index_out_of_bounds_error(i32 6)
@@ -106,11 +117,13 @@ define void @main() {
   label11:
   %temp28 = getelementptr %array$int, %array$int* %temp24, i32 0, i32 3
   %temp29 = load i32, i32* %temp28
+  call void @t_rt_print_int(i32 %temp29)
+  call void @t_rt_print_int(i32 5)
   %temp30 = icmp sge i32 5, 0
   br i1 %temp30, label %label12, label %label14
   ; check index is less than array length
   label12:
-  %temp31 = icmp slt i32 5, %temp29
+  %temp31 = icmp sle i32 5, %temp29
   br i1 %temp31, label %label13, label %label14
   label14:
   call void @t_rt_print_array_index_out_of_bounds_error(i32 7)
