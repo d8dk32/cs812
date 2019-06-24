@@ -651,4 +651,11 @@ public final class Encode extends TreeVisitorBase<String>
     return null;
   }
 
+  @Override public String visit(final Cast c)
+  {
+    //for now casts aren't really doing much. If they made it this far, it's basically a NO_OP
+    return visitNode(c.getToBeCastExpression());
+  }
+
+
 }

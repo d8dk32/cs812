@@ -3,9 +3,7 @@ package tc.compiler.parse;
 import tc.compiler.Location;
 import tc.compiler.Message;
 import tc.compiler.tree.*;
-import tc.compiler.tree.type.IntegerType;
-import tc.compiler.tree.type.ErrorType;
-import tc.compiler.tree.type.Type;
+import tc.compiler.tree.type.*;
 
 import java.util.List;
 
@@ -231,6 +229,26 @@ public final class TreeBuilder
   public static ArrayAccess buildArrayAccess(final Location loc, final Expression arr, Expression dimExpr)
   {
     return new ArrayAccess(loc, arr, dimExpr);
+  }
+
+  /**build new cast expression
+    * @param loc the location in the source code
+    *  @param at the array type in parens if there is one
+    *  @param pe the paren expression if there's not an array type
+    *  @param toBeCast the expression intended to be cast
+    * @return an ArrayAccess expression tree node
+   */
+  public static Cast buildCast(final Location loc, final ArrayType at, Expression pe, Expression toBeCast)
+  {
+    if(at == null)
+    {
+      return new Cast(loc, pe, toBeCast);
+    }
+    else
+    {
+      return new Cast(loc, at, toBeCast);
+    }
+
   }
 
 

@@ -364,5 +364,33 @@ public final class Analyze extends TreeVisitorBase<Tree>
     return aa;
   }
 
+  /** visit a Cast node */  
+  @Override public Tree visit(final Cast c)
+  {
+    Expression toBeCast = c.getToBeCastExpression();
+    visitNode(toBeCast);
+    if (c.getPresetType() != null)
+    {
+      if(!toBeCast.getType().isArrayType())
+      {
+        Message.error(c.getLoc(), "Incompatible cast types");
+      } else if (!c.getPresetType().compareArrayTypes((ArrayType) toBeCast.getType()))
+      {
+        Message.error(c.getLoc(), "Incompatible cast types");
+      }
+      c.setType(c.getPresetType());
+    }
+    else if (c.getParenExpression() != null)
+    {
+      visitNode(c.getParenExpression());
+      if(c.getParenExpression().getType() != toBeCast.getType())
+      {
+        Message.error(c.getLoc(), "Incompatible cast types");
+      }
+      c.setType(c.getParenExpression().getType());
+    }
+    return c; 
+  }
+
 }
 

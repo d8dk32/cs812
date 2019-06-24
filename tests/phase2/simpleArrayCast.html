@@ -1,0 +1,40 @@
+<head>
+<title> AST for simpleArrayCast.t</title>
+</head>
+<body>
+<pre>
+CompilationUnit
+[classes]
+[main block]
+  Declaration: int[]
+    Identifier x1
+  Declaration: int[]
+    Identifier x2
+  ExpressionStatement: 
+    Assignment: 
+      Identifier x2
+      Array Creation: [
+        IntegerLiteral (int) 5
+        ]
+  ExpressionStatement: 
+    Assignment: 
+      ArrayAccess: 
+        array: 
+        Identifier x2
+        address: 
+        IntegerLiteral (int) 0
+      IntegerLiteral (int) 42
+  ExpressionStatement: 
+    Assignment: 
+      Identifier x1
+      Cast:
+        Identifier x2
+        to
+        int[]
+  OutputStatement
+    ArrayAccess: 
+      array: 
+      Identifier x1
+      address: 
+      IntegerLiteral (int) 0
+</pre>

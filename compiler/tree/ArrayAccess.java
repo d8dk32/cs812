@@ -6,7 +6,7 @@ import tc.compiler.tree.type.*;
 import tc.compiler.tree.LeftSide;
 
 /**
- * AST variable node.
+ * AST ArrayAcess node.
  *
  */
 public final class ArrayAccess extends Expression implements LeftSide

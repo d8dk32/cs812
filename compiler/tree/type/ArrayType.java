@@ -93,6 +93,18 @@ public final class ArrayType extends ReferenceType
     return this.componentType;
   }
 
+  public String toFancyString()
+  {
+    String fancy = this.componentType;
+    int i = this.depth;
+    while(i > 0)
+    {
+      fancy += "[]";
+      i--;
+    }
+    return fancy;
+  }
+
   /* utility method for determing if 2 array types are 'equal' */
   public boolean compareArrayTypes(ArrayType aa)
   {

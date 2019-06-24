@@ -45,5 +45,7 @@ public interface TreeVisitor<T>
   T visit(ArrayCreationExpression arrayCreationExpr);
 
   T visit(ArrayAccess arrayAccess);
+
+  T visit(Cast cast);
 }
 

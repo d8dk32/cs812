@@ -262,7 +262,11 @@ unaryExpression
 
 castExpression
   returns [ Expression lval ]
-  : p=primary
+  : pe=parenExpression ce=castExpression
+    { $lval = buildCast(loc($start), null, $pe.lval, $ce.lval);}
+  | LPAREN a=arrayType RPAREN  ce=castExpression
+    { $lval = buildCast(loc($start), new ArrayType($a.lval, $a.dval), null, $ce.lval);}
+  | p=primary
     { $lval = $p.lval; }
   ;
 

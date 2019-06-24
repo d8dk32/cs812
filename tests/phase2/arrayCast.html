@@ -6,52 +6,56 @@
 CompilationUnit
 [classes]
 [main block]
-  MainVariableDeclarationStatement
-    (x1, int[])
-    (x2, int[])
-  MainVariableDeclarationStatement
-    (y1, int[][])
-    (y2, int[][])
-  MainVariableDeclarationStatement
-    (i, int)
-  ExpressionStatement
-    ASSIGN (int[])
-    MainBlockVariable (int[]) x1
-    NO_OP (int[])
-    DEREF (int[])
-    MainBlockVariable (int[]) x2
-  ExpressionStatement
-    ASSIGN (int[][])
-    MainBlockVariable (int[][]) y1
-    NO_OP (int[][])
-    DEREF (int[][])
-    MainBlockVariable (int[][]) y2
-  ExpressionStatement
-    ASSIGN ([error])
-    DEREF (int[])
-    MainBlockVariable (int[]) x1
-    CastOperator ([error])
-    DEREF (int[][])
-    MainBlockVariable (int[][]) y1
-  ExpressionStatement
-    ASSIGN ([error])
-    DEREF (int[][])
-    MainBlockVariable (int[][]) y1
-    CastOperator ([error])
-    DEREF (int[])
-    MainBlockVariable (int[]) x1
-  ExpressionStatement
-    ASSIGN ([error])
-    DEREF (int[])
-    MainBlockVariable (int[]) x1
-    CastOperator ([error])
-    DEREF (int)
-    MainBlockVariable (int) i
-  ExpressionStatement
-    ASSIGN ([error])
-    DEREF (int[][])
-    MainBlockVariable (int[][]) y1
-    CastOperator ([error])
-    DEREF (int)
-    MainBlockVariable (int) i
+  Declaration: int[]
+    Identifier x1
+  Declaration: int[]
+    Identifier x2
+  Declaration: int[][]
+    Identifier y1
+  Declaration: int[][]
+    Identifier y2
+  Declaration: int
+    Identifier i
+  ExpressionStatement: 
+    Assignment: 
+      Identifier x1
+      Cast:
+        Identifier x2
+        to
+        int[]
+  ExpressionStatement: 
+    Assignment: 
+      Identifier y1
+      Cast:
+        Identifier y2
+        to
+        int[][]
+  ExpressionStatement: 
+    Assignment: 
+      Identifier x1
+      Cast:
+        Identifier y1
+        to
+        int[]
+  ExpressionStatement: 
+    Assignment: 
+      Identifier y1
+      Cast:
+        Identifier x1
+        to
+        int[][]
+  ExpressionStatement: 
+    Assignment: 
+      Identifier x1
+      Cast:
+        Identifier i
+        to
+        int[]
+  ExpressionStatement: 
+    Assignment: 
+      Identifier y1
+      Cast:
+        Identifier i
+        to
+        int[][]
 </pre>

@@ -292,5 +292,25 @@ public final class Dump extends TreeVisitorBase<Void>
     return null;
   }
 
+  /** visit a cast node */
+  @Override public Void visit(final Cast c)
+  {
+    emit("Cast:");
+    indentation += increment;
+    visitNode(c.getToBeCastExpression());
+    emit("to");
+    if(c.getPresetType() != null)
+    {
+      emit(c.getPresetType().toFancyString());
+    }
+    else if (c.getParenExpression() != null)
+    {
+      visitNode(c.getParenExpression());
+      emit(c.getParenExpression().getType().toString());
+    }
+    indentation -= increment;
+    return null;
+  }
+
 }
 
