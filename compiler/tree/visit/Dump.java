@@ -312,5 +312,17 @@ public final class Dump extends TreeVisitorBase<Void>
     return null;
   }
 
+  /** visit a field access node */
+  @Override public Void visit(final FieldAccess fa)
+  {
+    emit("Field Access: ");
+    indentation += increment;
+    visitNode(fa.getObj());
+    emit(".");
+    visitNode(fa.getField());
+    indentation -= increment;
+    return null;
+  }
+
 }
 

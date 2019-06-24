@@ -47,5 +47,7 @@ public interface TreeVisitor<T>
   T visit(ArrayAccess arrayAccess);
 
   T visit(Cast cast);
+
+  T visit(FieldAccess fieldAccess);
 }
 

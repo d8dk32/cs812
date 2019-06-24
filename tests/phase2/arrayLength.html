@@ -1,0 +1,55 @@
+<head>
+<title> AST for arrayLength.t</title>
+</head>
+<body>
+<pre>
+CompilationUnit
+[classes]
+[main block]
+  Declaration: int[]
+    Identifier x
+  ExpressionStatement: 
+    Assignment: 
+      Identifier x
+      Array Creation: [
+        IntegerLiteral (int) 42
+        ]
+  OutputStatement
+    Field Access: 
+      Identifier x
+      .
+      Identifier length
+  ExpressionStatement: 
+    Assignment: 
+      Identifier x
+      Array Creation: [
+        IntegerLiteral (int) 12
+        ]
+  OutputStatement
+    ADD (int) 
+    Field Access: 
+      Identifier x
+      .
+      Identifier length
+    IntegerLiteral (int) 30
+  Declaration: int[][]
+    Identifier x2
+  ExpressionStatement: 
+    Assignment: 
+      Identifier x2
+      Array Creation: [
+        IntegerLiteral (int) 17
+        ][]
+  OutputStatement
+    ADD (int) 
+    ADD (int) 
+    Field Access: 
+      Identifier x2
+      .
+      Identifier length
+    Field Access: 
+      Identifier x
+      .
+      Identifier length
+    IntegerLiteral (int) 13
+</pre>

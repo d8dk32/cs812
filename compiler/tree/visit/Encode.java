@@ -657,5 +657,55 @@ public final class Encode extends TreeVisitorBase<String>
     return visitNode(c.getToBeCastExpression());
   }
 
+  @Override public String visit(final FieldAccess fa)
+  {
+    String objPtr = visitNode(fa.getObj());
+    String nullCheckTemp = getTemp();
+    String varType = fa.getObj().getType().encode();
+    String fieldPtr = getTemp();
+    String retval = getTemp();
+    String arrLen = getTemp();
+
+    String nullLabel = getLabel();
+    String proceedLabel = getLabel();
+
+    if(fa.getObj().getType().isArrayType()) 
+    {
+      //don't actually visit the length identifier because it won't have been defined, but that's ok
+      if(fa.getField().getName().equals("length"))
+      {
+        
+        //check to make sure the array has actually been defined
+        emit("; check for null reference");
+        emit(nullCheckTemp + " = icmp eq " + varType + "* " + objPtr + ", null");
+        emit("br i1 " + nullCheckTemp + ", label %" + nullLabel + ", label %" + proceedLabel);
+        emit(nullLabel + ":");
+        emit("call void @t_rt_print_null_ref_error(i32 " + fa.getLoc().getLine() + ")");
+        emit("br label %" + proceedLabel);
+        emit(proceedLabel + ":");
+        emit("; array is not null, proceed");
+        emit(fieldPtr + " = getelementptr " + varType + ", " + varType + "* " + objPtr + ", i32 0, i32 3");
+
+        if(fa.isLeftSide())
+          //return fieldPtr;
+          Message.bug(fa.getLoc(), "array length cannot be modified");
+
+        emit(arrLen + " = load i32, i32* " + fieldPtr);
+        return arrLen;
+      }
+      else
+      {
+        Message.bug(fa.getLoc(), "Field not valid for array types");
+      }
+    }
+    else
+    {
+      Message.bug(fa.getLoc(), "Field Access not currently supported for this type");
+    }
+
+    //gonna need to do more here in the future
+    return retval;
+  }
+
 
 }

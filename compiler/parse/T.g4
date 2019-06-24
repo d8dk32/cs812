@@ -208,6 +208,8 @@ leftHandSide
   returns [ LeftSide lval ]
   : i=identifier
     { $i.lval.setLeftSide(true); $lval = $i.lval; }
+  | fa=fieldAccess
+    { $fa.lval.setLeftSide(true); $lval = $fa.lval; }
   | aa=arrayAccess
     { $aa.lval.setLeftSide(true); $lval = $aa.lval; }
   ;
@@ -284,6 +286,8 @@ primaryNoNewArray
   returns [ Expression lval ]
   : pe=parenExpression
     { $lval = $pe.lval; }
+  | fa=fieldAccess
+    { $lval = $fa.lval; }
   | aa=arrayAccess
     { $lval = $aa.lval; }
   | l=literal
@@ -342,6 +346,16 @@ dimension
     { $lval = 1; }
   ;
 
+fieldAccess
+  returns [FieldAccess lval]
+  : id=identifier DOT i=identifier
+    { $lval = buildFieldAccess(loc($start), $id.lval, $i.lval); }
+  | fa=fieldAccess DOT i=identifier
+    { $lval = buildFieldAccess(loc($start), $fa.lval, $i.lval); }
+  | aa=arrayAccess DOT i=identifier 
+    { $lval = buildFieldAccess(loc($start), $aa.lval, $i.lval); }
+  ;
+
 arrayAccess
   returns [ ArrayAccess lval ]
   : i=identifier de1=dimensionExpression
@@ -385,6 +399,7 @@ MULTIPLY : [*];
 DIVIDE : [/];
 LESSTHAN : [<];
 GREATERTHAN : [>];
+DOT : [.];
 
 // keywords start here
 INT : 'int';

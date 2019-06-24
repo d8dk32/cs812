@@ -392,5 +392,29 @@ public final class Analyze extends TreeVisitorBase<Tree>
     return c; 
   }
 
+  /** vuisit a fieldaccess node */
+  @Override public Tree visit(final FieldAccess fa)
+  {
+    //first jjust handle array length
+    visitNode(fa.getObj());
+    if(fa.getObj().getType().isArrayType()) 
+    {
+      //don't actually visit the length identifier because it won't have been defined, but that's ok
+      if(fa.getField().getName().equals("length"))
+      {
+        fa.setType(IntegerType.getInstance());
+      }
+      else
+      {
+        Message.error(fa.getLoc(), "Field not valid for array types");
+      }
+    }
+    else
+    {
+      Message.error(fa.getLoc(), "Field Access not currently supported for this type");
+    }
+    return fa;
+  }
+
 }
 

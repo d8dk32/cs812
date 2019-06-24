@@ -169,10 +169,17 @@ public class TreeVisitorBase<T> implements TreeVisitor<T>
     return null;
   }
 
-  /**visit a ccast node. override to provide specific behavior */
+  /**visit a cast node. override to provide specific behavior */
   @Override public T visit(final Cast cast)
   {
     return null;
   }
+
+  /**visit a fieldAccess node. override to provide specific behavior */
+  @Override public T visit(final FieldAccess fieldAccess)
+  {
+    return null;
+  }
+
 }
 

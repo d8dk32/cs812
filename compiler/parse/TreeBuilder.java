@@ -236,7 +236,7 @@ public final class TreeBuilder
     *  @param at the array type in parens if there is one
     *  @param pe the paren expression if there's not an array type
     *  @param toBeCast the expression intended to be cast
-    * @return an ArrayAccess expression tree node
+    * @return a cast expression tree node
    */
   public static Cast buildCast(final Location loc, final ArrayType at, Expression pe, Expression toBeCast)
   {
@@ -250,6 +250,19 @@ public final class TreeBuilder
     }
 
   }
+
+  /**build new field access expression
+    * @param loc the location in the source code
+    *  @param obj the object containg the field
+    *  @param field the field itself
+    * 
+    * @return a fieldAccess expression tree node
+   */
+   public static FieldAccess buildFieldAccess(final Location loc, Expression obj, Identifier field)
+   {
+     Message.log("TreeBuilder: FieldAccess");
+     return new FieldAccess(loc, obj, field);
+   }
 
 
 
