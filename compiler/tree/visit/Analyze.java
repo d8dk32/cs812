@@ -133,18 +133,15 @@ public final class Analyze extends TreeVisitorBase<Tree>
     // visit the expression subtree
     outputStatement.setExp((Expression) visitNode(outputStatement.getExp()));
 
-    System.err.println(outputStatement.getExp());
-    System.err.println(outputStatement.getExp().getType());
-
     // avoid cascade of errors
-    if (!outputStatement.getExp().getType().isErrorType())
-    {
-      // check that the expression is int type
-      if (!outputStatement.getExp().getType().isIntegerType())
+      if (!outputStatement.getExp().getType().isErrorType())
       {
-        Message.error(outputStatement.getLoc(), "integer type expected");
+        // check that the expression is int type
+        if (!outputStatement.getExp().getType().isIntegerType())
+        {
+          Message.error(outputStatement.getLoc(), "integer type expected");
+        }
       }
-    }
 
     // return the node so that it can be re-assigned by its parent
     return outputStatement;
@@ -188,6 +185,7 @@ public final class Analyze extends TreeVisitorBase<Tree>
     if (symbolTable.get(identifier.getName()) == null)
     {
       Message.error(identifier.getLoc(), "undefined variable " + identifier.getName());
+      identifier.setType(ErrorType.getInstance());
     }
     else{
       Type type = symbolTable.get(identifier.getName()).getType();
@@ -412,6 +410,7 @@ public final class Analyze extends TreeVisitorBase<Tree>
     else
     {
       Message.error(fa.getLoc(), "Field Access not currently supported for this type");
+      fa.setType(ErrorType.getInstance());
     }
     return fa;
   }

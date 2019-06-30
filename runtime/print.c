@@ -28,3 +28,8 @@ void t_rt_print_null_ref_error(int32_t line)
   printf("null reference error occured at line %" PRId32 "\n", line);
   exit(-1); 
 }
+
+void t_rt_print_logging(int32_t num)
+{
+  printf("runtime logging: %" PRId32 "\n", num);
+}

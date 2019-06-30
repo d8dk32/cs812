@@ -260,11 +260,15 @@ public final class TreeBuilder
    */
    public static FieldAccess buildFieldAccess(final Location loc, Expression obj, Identifier field)
    {
-     Message.log("TreeBuilder: FieldAccess");
      return new FieldAccess(loc, obj, field);
    }
-
-
+   
+  
+   /** build new class declaration node */
+   public static ClassDeclarattion buildClassDeclaration(final Location loc, Identifier i, Identifier superI, ArrayList<ClassBodyDeclaration> cb)
+   {
+     return new ClassDeclaration(loc, i, superI, cb);
+   }
 
 
 

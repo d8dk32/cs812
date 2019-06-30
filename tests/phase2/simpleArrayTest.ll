@@ -1,6 +1,6 @@
-; source file: simpleMultiDArray.t
+; source file: simpleArrayTest.t
 ; T version: 1.0
-; compiled: Mon Jun 24 01:17:41 EDT 2019
+; compiled: Mon Jun 24 01:25:51 EDT 2019
 
 ; declarations for the runtime support functions
 declare void @t_rt_alloc_init()
@@ -142,64 +142,50 @@ define void @main() {
   %temp40 = bitcast i8** %temp33 to i32*
   ; store assigned value
   store i32 42, i32* %temp40
+  ; array declaration statement
+  %y  = alloca %array$int*
+  store %array$int* null, %array$int** %y
+  ; array creation
+  %temp42 = bitcast [1 x i8*]* @intVMT to i8*
+  %temp43 = call i8* (i32, i8*, i32, i32) @t_rt_new_intarray( i32 9, i8* %temp42, i32 1, i32 5)
+  %temp41 = bitcast i8* %temp43 to %array$int*
+  ; manually store len/dims/type because the new_array func isn't doing it like I expected
+  %temp44 = getelementptr %array$int, %array$int* %temp41, i32 0, i32 3
+  %temp45 = getelementptr %array$int, %array$int* %temp41, i32 0, i32 2
+  %temp46 = getelementptr %array$int, %array$int* %temp41, i32 0, i32 1
+  store i32 5, i32* %temp44
+  store i32 1, i32* %temp45
+  store i8* %temp42, i8** %temp46
+  ; store assigned value
+  store %array$int* %temp41, %array$int** %y
   ; load value from variable
-  %temp41 = load %array$ref*, %array$ref** %x
+  %temp47 = load %array$int*, %array$int** %y
   ; array access
   ; check for null reference
-  %temp44 = icmp eq %array$ref* %temp41, null
-  br i1 %temp44, label %label15, label %label16
+  %temp50 = icmp eq %array$int* %temp47, null
+  br i1 %temp50, label %label15, label %label16
   label15:
-  call void @t_rt_print_null_ref_error(i32 7)
+  call void @t_rt_print_null_ref_error(i32 10)
   br label %label16
   ; check that index is greater than or equal to 0
   label16:
-  %temp45 = getelementptr %array$ref, %array$ref* %temp41, i32 0, i32 3
-  %temp46 = load i32, i32* %temp45
-  %temp47 = icmp sge i32 4, 0
-  br i1 %temp47, label %label17, label %label19
+  %temp51 = getelementptr %array$int, %array$int* %temp47, i32 0, i32 3
+  %temp52 = load i32, i32* %temp51
+  %temp53 = icmp sge i32 4, 0
+  br i1 %temp53, label %label17, label %label19
   ; check index is less than array length
   label17:
-  %temp48 = icmp slt i32 4, %temp46
-  br i1 %temp48, label %label18, label %label19
+  %temp54 = icmp slt i32 4, %temp52
+  br i1 %temp54, label %label18, label %label19
   label19:
-  call void @t_rt_print_array_index_out_of_bounds_error(i32 7)
+  call void @t_rt_print_array_index_out_of_bounds_error(i32 10)
   br label %label18
   ; perform actual array access
   label18:
-  %temp42 = getelementptr %array$ref, %array$ref* %temp41, i32 0, i32 4
-  call void @t_rt_print_logging(i32 2)
-  %temp43 = getelementptr [0 x i8*], [0 x i8*]* %temp42, i32 0, i32 4
-  %temp49 = load i8*, i8** %temp43
-  %temp50 = bitcast i8* %temp49 to %array$ref*
-  ; array access
-  ; check for null reference
-  %temp53 = icmp eq %array$ref* %temp50, null
-  br i1 %temp53, label %label20, label %label21
-  label20:
-  call void @t_rt_print_null_ref_error(i32 7)
-  br label %label21
-  ; check that index is greater than or equal to 0
-  label21:
-  %temp54 = getelementptr %array$ref, %array$ref* %temp50, i32 0, i32 3
-  %temp55 = load i32, i32* %temp54
-  %temp56 = icmp sge i32 2, 0
-  br i1 %temp56, label %label22, label %label24
-  ; check index is less than array length
-  label22:
-  %temp57 = icmp slt i32 2, %temp55
-  br i1 %temp57, label %label23, label %label24
-  label24:
-  call void @t_rt_print_array_index_out_of_bounds_error(i32 7)
-  br label %label23
-  ; perform actual array access
-  label23:
-  %temp51 = getelementptr %array$ref, %array$ref* %temp50, i32 0, i32 4
+  %temp48 = getelementptr %array$int, %array$int* %temp47, i32 0, i32 4
   call void @t_rt_print_logging(i32 1)
-  %temp52 = getelementptr [0 x i8*], [0 x i8*]* %temp51, i32 0, i32 2
-  %temp58 = load i8*, i8** %temp52
-  %temp60 = bitcast i8* %temp58 to i32*
-  %temp59 = load i32, i32*%temp60
-  ; call to runtime function to output a value
-  call void @t_rt_print_int(i32 %temp59)
+  %temp49 = getelementptr [0 x i32], [0 x i32]* %temp48, i32 0, i32 4
+  ; store assigned value
+  store i32 42, i32* %temp49
   ret void
 }

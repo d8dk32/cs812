@@ -10,15 +10,36 @@ import tc.compiler.tree.visit.TreeVisitor;
  */
 public final class ClassDeclaration extends Node
 {
+  private Identifier className;
+  private Identifier superClassName;
+  private ArrayList<ClassBodyDeclaration> classBody;
+
   /** Construct a class declaration tree node.
    *
    *  @param loc the source code location of the class declaration.
    */
-  public ClassDeclaration(final Location loc)
+  public ClassDeclaration(final Location loc, Identifier name, Identifier superName, ArrayList<ClassBodyDeclaration> cb)
   {
     super(loc);
+    className = name;
+    superClassName = superName;
+    classBody = cb;
   }
 
+  public String getClassName()
+  {
+    return className.getName();
+  }
+
+  public String getSuperClassName()
+  {
+    return superClassName.getName();
+  }  
+
+  public ArrayList<ClassBodyDeclaration> getClassBody()
+  {
+    return classBody;
+  }
   /** Apply a visitor to the node.
    *
    *  @param visitor the visitor to apply.

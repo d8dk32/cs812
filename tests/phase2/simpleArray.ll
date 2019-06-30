@@ -1,6 +1,6 @@
 ; source file: simpleArray.t
 ; T version: 1.0
-; compiled: Sun Jun 23 14:36:03 EDT 2019
+; compiled: Mon Jun 24 01:42:06 EDT 2019
 
 ; declarations for the runtime support functions
 declare void @t_rt_alloc_init()
@@ -10,6 +10,7 @@ declare void @t_rt_print_int(i32)
 declare void @t_rt_print_divide_by_zero_error(i32)
 declare void @t_rt_print_array_index_out_of_bounds_error(i32)
 declare void @t_rt_print_null_ref_error(i32)
+declare void @t_rt_print_logging(i32)
 declare i8* @t_rt_new_intarray(i32, i8*, i32, i32)
 declare i8* @t_rt_new_refarray(i32, i8*, i32, i32)
 

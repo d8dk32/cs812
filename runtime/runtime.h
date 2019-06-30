@@ -16,6 +16,7 @@ void t_rt_print_int(int32_t value);
 void t_rt_print_divide_by_zero_error(int32_t line);
 void t_rt_print_array_index_out_of_bounds_error(int32_t line);
 void t_rt_print_null_ref_error(int32_t line);
+void t_rt_print_logging(int32_t num);
 
 //array structs
 typedef struct IntArray {

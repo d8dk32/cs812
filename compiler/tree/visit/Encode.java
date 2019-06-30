@@ -204,6 +204,7 @@ public final class Encode extends TreeVisitorBase<String>
     emit("declare void @t_rt_print_divide_by_zero_error(i32)");
     emit("declare void @t_rt_print_array_index_out_of_bounds_error(i32)");
     emit("declare void @t_rt_print_null_ref_error(i32)");
+    emit("declare void @t_rt_print_logging(i32)");
     emit("declare i8* @t_rt_new_intarray(i32, i8*, i32, i32)");
     emit("declare i8* @t_rt_new_refarray(i32, i8*, i32, i32)");
     emit("");
@@ -612,7 +613,7 @@ public final class Encode extends TreeVisitorBase<String>
     emit(accessLabel + ":");
     emit(arrayPtr + " = getelementptr " + varType + ", " + varType + "* " + theArray + ", i32 0, i32 4");
 
-    Message.log("arr access at line" + aa.getLoc().getLine() + " arr index " + arrIndex);
+
     ArrayType baseType = aa.getBaseType();
     int arrDepth = baseType.getDepth();
 

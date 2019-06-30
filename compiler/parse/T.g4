@@ -39,6 +39,15 @@ compilationUnit
   : mfd=mainFunctionDeclaration EOF
     { semanticValue = buildCompilationUnit(loc($start), $mfd.lval,
         new ArrayList<ClassDeclaration>()); }
+  | mfd=mainFunctionDeclaration cd=classDeclarations EOF
+    { semanticValue = buildCompilationUnit(loc($start), $mfd.lval,
+        $cd.lval); }
+  | cd=classDeclarations mfd=mainFunctionDeclaration EOF
+    { semanticValue = buildCompilationUnit(loc($start), $mfd.lval,
+        $cd.lval); }
+  | cd=classDeclarations mfd=mainFunctionDeclaration cd1=classDeclarations EOF
+    { $cd.lval.addAll($cd1.lval); semanticValue = buildCompilationUnit(loc($start), $mfd.lval,
+        $cd.lval); }
   ;
 
 mainFunctionDeclaration
@@ -72,6 +81,56 @@ mainBlockStatement
   : bs=blockStatement
     { $lval = $bs.lval; }
   ;
+
+classDeclarations
+  returns [ ArrayList<ClassDeclarations> lval ]
+  : cds=classDeclarations cd=classDeclaration
+    { $cds.lval.add($cd.lval); $lval = $cds.lval; }
+  | cd1=classDeclaration
+    { $lval = new ArrayList<ClassDeclaration>(); $lval.add($cd1.lval); }
+  ;
+
+classDeclaration
+  returns [ ClassDeclaration lval ]
+  : CLASS i=identifier cb=classBody
+    { $lval = buildClassDeclaration(loc($start), $i.lval, null, $cb.lval); }
+  | CLASS i=identifier EXTENDS s=identifier cb=classBody
+    { $lval = buildClassDeclaration(loc($start), $i.lval, $s.lval, $cb.lval); }
+  ;
+
+classBody
+  returns [  ArrayList<ClassBodyDeclaration> lval ]
+  : LBRACK cbd=classBodyDeclarations RBRACK
+    { $lval = $cbd.lval; }
+  | LBRACK RBRACK
+    { $lval = new ArrayList<ClassBodyDeclaration>(); }
+  ;
+
+classBodyDeclarations
+  returns [ ArrayList<ClassBodyDeclaration> lval ]
+  : cbds=classBodyDeclarations cbd=classBodyDeclaration
+    { $cbds.lval.add($cbd.lval); $lval = $cbds.lval; }
+  | cbd1=classBodyDeclaration
+    { $lval = new ArrayList<ClassBodyDeclaration>(); 
+      if ($cbd1.lval !=null) { $lval.add($cbd1.lval); } }
+  ;
+
+classBodyDeclaration
+  returns [ ClassBodyDeclaration lval ]
+  : fd=fieldDeclaration
+    { $lval = $fd.lval; }
+  | SEMICOLON
+    { $lval = null; }
+  ;
+
+fieldDeclaration
+  returns [ FieldDeclaration lval ]
+  : at=arrayType d1=declarations SEMICOLON
+    { $lval = buildFieldDeclaration(loc($start), $at.lval, $at.dval, $d1.lval, $d1.ivals);}
+  | INT d=declarations SEMICOLON
+    { $lval = buildFieldDeclaration(loc($start), "int", 0, $d.lval, $d.ivals); }
+  ;
+
 
 block
   returns [ Block lval ]
@@ -411,6 +470,8 @@ WHILE : 'while';
 BREAK : 'break';
 CONTINUE : 'continue';
 NEW : 'new';
+CLASS : 'class';
+EXTENDS : 'extends';
 
 IDENTIFIER : Letter (Letter | Digit)*;
 

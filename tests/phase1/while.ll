@@ -1,6 +1,6 @@
 ; source file: while.t
 ; T version: 1.0
-; compiled: Thu Jun 20 20:52:04 EDT 2019
+; compiled: Mon Jun 24 01:55:41 EDT 2019
 
 ; declarations for the runtime support functions
 declare void @t_rt_alloc_init()
@@ -8,7 +8,11 @@ declare i8* @t_rt_alloc(i64, i32)
 declare void @t_rt_dealloc(i8*)
 declare void @t_rt_print_int(i32)
 declare void @t_rt_print_divide_by_zero_error(i32)
-declare i8* @t_rt_new_array(i32, i8*, i32, i32)
+declare void @t_rt_print_array_index_out_of_bounds_error(i32)
+declare void @t_rt_print_null_ref_error(i32)
+declare void @t_rt_print_logging(i32)
+declare i8* @t_rt_new_intarray(i32, i8*, i32, i32)
+declare i8* @t_rt_new_refarray(i32, i8*, i32, i32)
 
 ; VMTs
 @arrayVMT = global [1 x i8*] [i8* bitcast ([1 x i8*]* @Object$VMT to i8*)]
