@@ -49,5 +49,7 @@ public interface TreeVisitor<T>
   T visit(Cast cast);
 
   T visit(FieldAccess fieldAccess);
+
+  T visit(FieldDeclaration FieldDecl);
 }
 

@@ -83,7 +83,7 @@ mainBlockStatement
   ;
 
 classDeclarations
-  returns [ ArrayList<ClassDeclarations> lval ]
+  returns [ ArrayList<ClassDeclaration> lval ]
   : cds=classDeclarations cd=classDeclaration
     { $cds.lval.add($cd.lval); $lval = $cds.lval; }
   | cd1=classDeclaration

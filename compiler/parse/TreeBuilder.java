@@ -264,12 +264,17 @@ public final class TreeBuilder
    }
    
   
-   /** build new class declaration node */
-   public static ClassDeclarattion buildClassDeclaration(final Location loc, Identifier i, Identifier superI, ArrayList<ClassBodyDeclaration> cb)
+   /* build new class declaration node */
+   public static ClassDeclaration buildClassDeclaration(final Location loc, Identifier i, Identifier superI, List<ClassBodyDeclaration> cb)
    {
      return new ClassDeclaration(loc, i, superI, cb);
    }
 
 
+   /* build new field declaration node, very similar to a main variable declaration */
+   public static FieldDeclaration buildFieldDeclaration(final Location loc, String type, int addDims, List<Identifier> decList, List<Integer> dimList)
+   {
+     return new FieldDeclaration(loc, type, addDims, decList, dimList);
+   }
 
 }

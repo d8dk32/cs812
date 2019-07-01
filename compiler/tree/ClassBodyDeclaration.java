@@ -1,6 +1,6 @@
 
 package tc.compiler.tree;
-
+import tc.compiler.Location;
 
 /**
  * Superclass for all AST statement nodes.

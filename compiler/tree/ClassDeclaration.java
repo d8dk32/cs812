@@ -3,6 +3,10 @@ package tc.compiler.tree;
 
 import tc.compiler.Location;
 import tc.compiler.tree.visit.TreeVisitor;
+import tc.compiler.tree.type.*;
+import tc.compiler.tree.Identifier;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * AST class declaration node.
@@ -12,13 +16,10 @@ public final class ClassDeclaration extends Node
 {
   private Identifier className;
   private Identifier superClassName;
-  private ArrayList<ClassBodyDeclaration> classBody;
+  private List<ClassBodyDeclaration> classBody;
 
-  /** Construct a class declaration tree node.
-   *
-   *  @param loc the source code location of the class declaration.
-   */
-  public ClassDeclaration(final Location loc, Identifier name, Identifier superName, ArrayList<ClassBodyDeclaration> cb)
+  
+  public ClassDeclaration(final Location loc, Identifier name, Identifier superName, List<ClassBodyDeclaration> cb)
   {
     super(loc);
     className = name;
@@ -36,10 +37,11 @@ public final class ClassDeclaration extends Node
     return superClassName.getName();
   }  
 
-  public ArrayList<ClassBodyDeclaration> getClassBody()
+  public List<ClassBodyDeclaration> getClassBody()
   {
     return classBody;
   }
+
   /** Apply a visitor to the node.
    *
    *  @param visitor the visitor to apply.
