@@ -324,7 +324,40 @@ public final class Dump extends TreeVisitorBase<Void>
     return null;
   }
 
-  
+  @Override public Void visit(ClassDeclaration cd)
+  {
+    boolean ext = (cd.getSuperClassName != null);
+    String classNameEmit = "Class " + cd.getClassName();
+    if(ext)
+      classNameEmit += " extends " + cd.getSuperClassName;
+    emit(classNameEmit);
+    indentation += increment;
+    visitEach(cd.getClassBody());
+    indentation -= increment;
+    return null;
+  }
+
+  @Override public Void visit(FieldDeclaration fd)
+  {
+    //visit its child nodes
+    //for(Identifier i : declStatement.getDeclarations())
+    for(int x = 0; x < fd.getDeclarations().size(); x++)
+    {
+      Identifier i = fd.getDeclarations().get(x);
+      String dims = "";
+      for(int d = 0; d < fd.getDimensionList().get(x); d++)
+      {
+        dims += "[]";
+      }
+      emit("Declaration: " + fd.getType().toString() + dims);
+      indentation += increment;
+      visitNode(i);
+      indentation -= increment;
+    }
+
+    return null;
+  }
+
 
 }
 
