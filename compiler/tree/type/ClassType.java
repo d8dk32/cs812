@@ -3,7 +3,9 @@ package tc.compiler.tree.type;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
-
+import tc.compiler.tree.*;
+import java.util.List;
+import java.util.ArrayList;
 /**
  *  A type for implementing class types.
  *
@@ -22,6 +24,9 @@ public final class ClassType extends ReferenceType
 
   // was this class type declared?
   private boolean wasDeclared;
+
+  //list of class declarations
+  private List<ClassBodyDeclaration> classBodyDecls = new ArrayList<>();
 
   /** Create/retrieve a class type. If class already exists with the
    *  given name, then return that type, else return a new type.
@@ -82,6 +87,18 @@ public final class ClassType extends ReferenceType
     this.wasDeclared = true;
   }
 
+  /* class body declarations setter */
+  public void setClassBodyDecls(List<ClassBodyDeclaration> declList)
+  {
+    this.classBodyDecls = declList;
+  }
+
+  /* class body declarations getter */
+  public List<ClassBodyDeclaration> getClassBodyDecls()
+  {
+    return this.classBodyDecls;
+  }
+
   /** Dump all the class types to stderr for debugging purposes.
    */
   static public void dumpClasses()
@@ -96,6 +113,29 @@ public final class ClassType extends ReferenceType
       if (superClass != null) superName = superClass.getName();
       System.err.println("    " + clss + " (super is " +
         superName + ")");
+      for (ClassBodyDeclaration cbd : clss.getClassBodyDecls())
+      {
+        if (cbd instanceof FieldDeclaration)
+        {
+          FieldDeclaration fd = (FieldDeclaration) cbd;
+          for(int x = 0; x < fd.getDeclarations().size(); x++)
+          {
+            Identifier i = fd.getDeclarations().get(x);
+            String dims = "";
+            for(int d = 0; d < fd.getDimensionList().get(x); d++)
+            {
+              dims += "[]";
+            }
+            System.err.println("      Field: " + fd.getType() + dims + " " + i.getName());
+          }
+        }
+        else
+        {
+          //it's a method but we're not handling that yet
+          // TODO
+          //handle methods
+        }
+      }
     }
     System.err.println("End of dump of the class types.");
   }

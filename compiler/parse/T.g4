@@ -129,6 +129,8 @@ fieldDeclaration
     { $lval = buildFieldDeclaration(loc($start), $at.lval, $at.dval, $d1.lval, $d1.ivals);}
   | INT d=declarations SEMICOLON
     { $lval = buildFieldDeclaration(loc($start), "int", 0, $d.lval, $d.ivals); }
+  | i=identifier d=declarations SEMICOLON
+    { $lval = buildFieldDeclaration(loc($start), $i.lval.getName(), 0, $d.lval, $d.ivals); }
   ;
 
 
@@ -213,6 +215,8 @@ declarationStatement
     { $lval = buildDeclarationStatement(loc($start), $at.lval, $at.dval, $d1.lval, $d1.ivals);}
   | INT d=declarations SEMICOLON
     { $lval = buildDeclarationStatement(loc($start), "int", 0, $d.lval, $d.ivals); }
+  | i=identifier d=declarations SEMICOLON
+    { $lval = buildDeclarationStatement(loc($start), $i.lval.getName(), 0, $d.lval, $d.ivals); }
   ;
 
 declarations
@@ -383,6 +387,8 @@ arrayType
   returns [ String lval, int dval ]
   : INT ds=dimensions
     { $lval = "int"; $dval = $ds.lval; }
+  | i=identifier ds=dimensions
+    { $lval = $i.lval.getName(); $dval = $ds.lval; }
   ;
 
 dimensionExpression

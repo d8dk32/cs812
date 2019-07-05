@@ -37,7 +37,7 @@ public final class ClassDeclaration extends Node
     if(superClassName != null)
       return superClassName.getName();
     else
-      return null;
+      return "Object";
   }  
 
   public List<ClassBodyDeclaration> getClassBody()

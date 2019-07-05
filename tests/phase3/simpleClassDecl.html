@@ -1,0 +1,26 @@
+<head>
+<title> AST for simpleClassDecl.t</title>
+</head>
+<body>
+<pre>
+CompilationUnit
+[classes]
+  Class B extends A
+    Declaration: int
+      Identifier c
+    Declaration: D[][]
+      Identifier f
+  Class C extends Object
+  Class A extends Object
+    Declaration: int
+      Identifier a
+    Declaration: int[]
+      Identifier b
+    Declaration: B
+      Identifier c
+[main block]
+  Declaration: A
+    Identifier d
+  OutputStatement
+    IntegerLiteral (int) 42
+</pre>
