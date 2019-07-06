@@ -415,5 +415,12 @@ public final class Analyze extends TreeVisitorBase<Tree>
     return fa;
   }
 
+  @Override public Tree visit(final ClassDeclaration cd)
+  {
+    //visit each ClassBodyDeclaratuion. If it's a Field, add it to this thing's ClassType's list of fields
+    //remember to start from the end of the list so that you add the base type's fields before the supertype's
+    
+  }
+
 }
 

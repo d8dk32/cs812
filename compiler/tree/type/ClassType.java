@@ -28,6 +28,10 @@ public final class ClassType extends ReferenceType
   //list of class declarations
   private List<ClassBodyDeclaration> classBodyDecls = new ArrayList<>();
 
+  //list of Fields. will be added in type->supertype order, i.e. reverse order of what
+  //getClassBodyDecls() returns
+  private List<NameTypeDepth> fields = new ArrayList<NameTypeDepth>();
+
   /** Create/retrieve a class type. If class already exists with the
    *  given name, then return that type, else return a new type.
    *  @param name name of the class type.
@@ -94,9 +98,22 @@ public final class ClassType extends ReferenceType
   }
 
   /* class body declarations getter */
-  public List<ClassBodyDeclaration> getClassBodyDecls()
+  public List<ClassBodyDeclaration> getClassBodyDecls(boolean includeSupers)
   {
-    return this.classBodyDecls;
+    if(!includeSupers)
+    {
+      return this.classBodyDecls;
+    }
+
+    //make sure to return the super class(es) body decls too
+    List<ClassBodyDeclaration> superDecls = new ArrayList<ClassBodyDeclaration>();
+    if(this.superClass != null)
+    {
+      superDecls = superClass.getClassBodyDecls(true);
+    }
+  
+    superDecls.addAll(this.classBodyDecls);
+    return superDecls;
   }
 
   /** Dump all the class types to stderr for debugging purposes.
@@ -113,7 +130,7 @@ public final class ClassType extends ReferenceType
       if (superClass != null) superName = superClass.getName();
       System.err.println("    " + clss + " (super is " +
         superName + ")");
-      for (ClassBodyDeclaration cbd : clss.getClassBodyDecls())
+      for (ClassBodyDeclaration cbd : clss.getClassBodyDecls(false))
       {
         if (cbd instanceof FieldDeclaration)
         {

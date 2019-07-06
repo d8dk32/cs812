@@ -51,5 +51,6 @@ public interface TreeVisitor<T>
   T visit(FieldAccess fieldAccess);
 
   T visit(FieldDeclaration FieldDecl);
+
 }
 

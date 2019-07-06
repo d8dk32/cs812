@@ -29,13 +29,11 @@ public final class PreprocessClassDeclarations extends TreeVisitorBase<Void>
   /** Process a class declaration. */
   @Override public Void visit(ClassDeclaration classDeclaration)
   {
-    // TODO
     ClassType type = ClassType.getInstance(classDeclaration.getClassName());
     ClassType superClass = ClassType.getInstance(classDeclaration.getSuperClassName());
     type.setSuperClass(superClass);
     type.setWasDeclared();
     type.setClassBodyDecls(classDeclaration.getClassBody());
-
 
     return null;
   }
