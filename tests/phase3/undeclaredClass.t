@@ -1,7 +1,7 @@
-class B extends A {
+class B  {
 
   int c;
-  C[] f[];
+  D[] f[];
 }
 
 int main() {
@@ -9,9 +9,6 @@ int main() {
   out 42;
 }
 
-class C {
-  ;
-}
 
 class A {
 

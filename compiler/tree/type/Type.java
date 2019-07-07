@@ -67,6 +67,11 @@ public abstract class Type
     return false;
   }
 
+  public boolean isClassType()
+  {
+    return false;
+  }
+
   public int getDepth()
   {
     return 0;

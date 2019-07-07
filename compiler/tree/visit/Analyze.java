@@ -484,6 +484,13 @@ public final class Analyze extends TreeVisitorBase<Tree>
     // the related DeclarationStatement (main variable decl) is adding things
     // to the symbol table, nad since these Identifiers won't be in the symbol
     // table I don't think we even need to visit those nodes
+    // just make sure if it's a field of class type that the class has been declared
+
+    if(fd.getType() != "int" && !ClassType.getInstance(fd.getType()).wasDeclared())
+    {
+      Message.error(fd.getLoc(), "Undeclared class type " + fd.getType());
+    }
+
     return fd;
   }
 }

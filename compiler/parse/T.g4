@@ -353,6 +353,8 @@ primaryNoNewArray
     { $lval = $fa.lval; }
   | aa=arrayAccess
     { $lval = $aa.lval; }
+  | cice=classInstanceCreationExpression
+    { $lval = $cice.lval; }
   | l=literal
     { $lval = $l.lval; }
   ;
@@ -381,6 +383,10 @@ arrayCreationExpression
     { $lval = buildArrayCreationExpression(loc($start), IntegerType.getInstance(), $de.lval, new Integer($d.lval + 1)); }
   | NEW INT de=dimensionExpression
     { $lval = buildArrayCreationExpression(loc($start), IntegerType.getInstance(), $de.lval, new Integer(1)); }
+  | NEW i=identifier de=dimensionExpression d=dimensions
+    { $lval = buildArrayCreationExpression(loc($start), ClassType.getInstance($i.lval.getName()), $de.lval, new Integer($d.lval + 1)); }
+  | NEW i=identifier de=dimensionExpression
+    { $lval = buildArrayCreationExpression(loc($start), ClassType.getInstance($i.lval.getName()), $de.lval, new Integer(1)); }
   ;
 
 arrayType
@@ -409,6 +415,28 @@ dimension
   returns [ int lval ]
   : LSQBRACK RSQBRACK
     { $lval = 1; }
+  ;
+
+classInstanceCreationExpression
+  returns [ ClassInstanceCreationExpression lval ]
+  : NEW i=identifier arg=arguments
+    { $lval = buildClassInstanceCreationExpression(loc($start), $i.lval.getName(), $arg.lval); }
+  ;
+
+arguments
+  returns [ ArrayList<Expression> lval ]
+  : LPAREN al=argumentList RPAREN
+    { $lval = $al.lval; }
+  | LPAREN RPAREN
+    { $lval = new ArrayList<Expression>(); }
+  ;
+
+argumentList
+  returns [ ArrayList<Expression> lval ]
+  : al=argumentList COMMA e=expression
+    { $al.lval.add($e.lval); $lval = $al.lval; }
+  | e=expression
+    { $lval = new ArrayList<Expression>(); $lval.add($e.lval); }
   ;
 
 fieldAccess

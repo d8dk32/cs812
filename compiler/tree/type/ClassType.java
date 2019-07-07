@@ -214,5 +214,10 @@ public final class ClassType extends ReferenceType
   {
     return name;
   }
+
+  @Override public boolean isClassType()
+  {
+    return true;
+  }
 }
 

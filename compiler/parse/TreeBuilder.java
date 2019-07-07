@@ -277,4 +277,10 @@ public final class TreeBuilder
      return new FieldDeclaration(loc, type, addDims, decList, dimList);
    }
 
+   /* build new class instance creation expression */
+   public static ClassInstanceCreationExpression buildClassInstanceCreationExpression(final Location loc, String className, List<Expression> args)
+   {
+     return new ClassInstanceCreationExpression(loc, className, args);
+   }
+
 }

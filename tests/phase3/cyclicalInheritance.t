@@ -1,7 +1,7 @@
 class B  {
 
   int c;
-  D[] f[];
+  B[] f[];
 }
 
 int main() {

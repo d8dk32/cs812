@@ -57,6 +57,9 @@ public final class ArrayType extends ReferenceType
 
   public String encodeComponentRuntimeType()
   {
+    if(this.componentType != "int")
+      return "@" + this.componentType + "$VMT";
+
     return "@" + this.componentType + "VMT";
   }
 
@@ -67,7 +70,7 @@ public final class ArrayType extends ReferenceType
     else 
     {
       //it must be some kind of reference type like a class
-      return null;
+      return "%class$" + this.componentType;
     }
   }
 
