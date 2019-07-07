@@ -493,5 +493,24 @@ public final class Analyze extends TreeVisitorBase<Tree>
 
     return fd;
   }
+
+  @Override public Tree visit(final ClassInstanceCreationExpression cice)
+  {    
+    //set type of CICExpression
+    ClassType ct = ClassType.getInstance(cice.getClassName());
+    if(!ct.wasDeclared())
+    {
+      Message.error(cice.getLoc(), "Undeclared class type " + cice.getClassName());
+      cice.setType(ErrorType.getInstance());
+    }
+    else{
+      cice.setType(ct);
+    }
+
+    //TODO
+    //handle constructor args at some point
+    //
+    return cice;
+  }
 }
 

@@ -355,6 +355,19 @@ public final class Dump extends TreeVisitorBase<Void>
     return null;
   }
 
+  @Override public Void visit(final ClassInstanceCreationExpression cice)
+  {
+    emit("Class instantiation: class " + cice.getClassName());
+    if(!cice.getArgs().isEmpty())
+    {
+      indentation += increment;
+      emit("Args: ");
+      visitEach(cice.getArgs());
+      indentation -= increment;
+    }
+    
+    return null;
+  }
 
 }
 

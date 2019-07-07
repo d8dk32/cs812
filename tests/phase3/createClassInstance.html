@@ -1,0 +1,46 @@
+<head>
+<title> AST for createClassInstance.t</title>
+</head>
+<body>
+<pre>
+CompilationUnit
+[classes]
+  Class B extends A
+    Declaration: int
+      Identifier a
+    Declaration: int
+      Identifier e
+  Class A extends Object
+    Declaration: B
+      Identifier a
+    Declaration: B
+      Identifier b
+    Declaration: A
+      Identifier c
+    Declaration: A
+      Identifier d
+[main block]
+  Declaration: A
+    Identifier a
+  Declaration: B
+    Identifier b
+  ExpressionStatement: 
+    Assignment: 
+      Identifier a
+      Class instantiation: class A
+        Args: 
+        IntegerLiteral (int) 1
+  ExpressionStatement: 
+    Assignment: 
+      Identifier a
+      Class instantiation: class B
+        Args: 
+        IntegerLiteral (int) 1
+        IntegerLiteral (int) 2
+  ExpressionStatement: 
+    Assignment: 
+      Identifier b
+      Class instantiation: class B
+  OutputStatement
+    IntegerLiteral (int) 42
+</pre>

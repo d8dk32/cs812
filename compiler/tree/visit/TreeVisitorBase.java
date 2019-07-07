@@ -187,6 +187,11 @@ public class TreeVisitorBase<T> implements TreeVisitor<T>
     return null;
   }
   
+  /** visit a ClassInstanceCreationExpression. Override to provide specific behavior */
+  @Override public T visit(final ClassInstanceCreationExpression cice)
+  {
+    return null;
+  }
 
 }
 
