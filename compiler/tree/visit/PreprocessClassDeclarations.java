@@ -31,8 +31,13 @@ public final class PreprocessClassDeclarations extends TreeVisitorBase<Void>
   {
     ClassType type = ClassType.getInstance(classDeclaration.getClassName());
     ClassType superClass = ClassType.getInstance(classDeclaration.getSuperClassName());
-    type.setSuperClass(superClass);
+    
+    if(type.wasDeclared())
+    {
+      Message.error(classDeclaration.getLoc(), "Duplicate class declaration " + classDeclaration.getClassName());
+    }
     type.setWasDeclared();
+    type.setSuperClass(superClass);
     type.setClassBodyDecls(classDeclaration.getClassBody());
 
     return null;

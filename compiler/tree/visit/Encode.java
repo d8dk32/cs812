@@ -247,6 +247,12 @@ public final class Encode extends TreeVisitorBase<String>
     {
       String s = "%class$" + name + " =  type { i8*";
       // fields will go here!
+      // TODO
+      // add fields to type
+      for(NameTypeDepth ntd : ClassType.getInstance(name).getFields())
+      {
+        
+      }
       s +=  " }";
       emit(s);
     }
