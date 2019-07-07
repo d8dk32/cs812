@@ -116,6 +116,16 @@ public final class ClassType extends ReferenceType
     return superDecls;
   }
 
+  public List<NameTypeDepth> getFields()
+  {
+    return this.fields;
+  }
+
+  public void addToFields(NameTypeDepth ntd)
+  {
+    this.fields.add(ntd);
+  }
+
   /** Dump all the class types to stderr for debugging purposes.
    */
   static public void dumpClasses()

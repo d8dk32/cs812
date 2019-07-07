@@ -1,6 +1,8 @@
+package tc.compiler.tree;
+
 //A class that holds a string representing the name of a field, it's base type, and it's depth (0 if not an array)
 //going to try just using a String to represent the type for this. i think it will be ok.
-public class NameTypeDepth
+public final class NameTypeDepth
 {
     private String name;
     private String type;
@@ -26,5 +28,17 @@ public class NameTypeDepth
     public int getDepth()
     {
         return this.depth;
+    }
+
+    public String toString()
+    {
+        String ntdString = "NTD: " + this.name + ", " + this.type;
+        int i = 0;
+        while(i < this.depth)
+        {
+            ntdString += "[]";
+            i++;
+        }
+        return ntdString;
     }
 }

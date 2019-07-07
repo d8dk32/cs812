@@ -1,4 +1,4 @@
-class B extends A {
+class B  {
 
   int c;
   D[] f[];
@@ -9,11 +9,11 @@ int main() {
   out 42;
 }
 
-class C {
+class C extends A {
   ;
 }
 
-class A {
+class A extends C {
 
   int a;
   int[] b;

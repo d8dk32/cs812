@@ -6,6 +6,7 @@ import tc.compiler.Location;
 import tc.compiler.tree.*;
 import tc.compiler.tree.type.*;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Analyze an AST to determine the semantics of the program. Information
@@ -84,8 +85,28 @@ public final class Analyze extends TreeVisitorBase<Tree>
   /** Analyze a compilation unit. */
   @Override public Tree visit(final CompilationUnit compilationUnit)
   {
+    //check for cyclical inheritiance before analyzing 
+    for(ClassDeclaration cd : compilationUnit.getClasses())
+    {
+      HashMap<String, Boolean> supers = new HashMap<>();
+      ClassType classType = ClassType.getInstance(cd.getClassName());
+      ClassType nextSuper = classType.getSuperClass();
+      boolean cycleFound = false;
+      while (nextSuper != null && !cycleFound)
+      {
+        cycleFound = supers.containsKey(nextSuper.getName());
+        supers.put(nextSuper.getName(), true);
+        nextSuper = nextSuper.getSuperClass();
+      }
+      if (cycleFound)
+      {
+        Message.fatal("Cyclical inheritance detected starting with class " + classType.getName());
+      }
+    }    
+
     visitEach(compilationUnit.getClasses());
     visitEach(compilationUnit.getMainBlock());
+
     return compilationUnit;
   }
 
@@ -217,8 +238,15 @@ public final class Analyze extends TreeVisitorBase<Tree>
       }
       else
       {
-          //must be some kind of class type
-          Message.error(declStatement.getLoc(), "unsupported variable type");
+        //must be some kind of class type
+        if(depth > 0)
+        {
+          varType = new ArrayType(declStatement.getType(), depth);
+        }
+        else
+        {
+          varType = ClassType.getInstance(declStatement.getType());
+        }
       }
       if (symbolTable.get(i.getName()) == null)
       {
@@ -417,10 +445,46 @@ public final class Analyze extends TreeVisitorBase<Tree>
 
   @Override public Tree visit(final ClassDeclaration cd)
   {
+    ClassType cdType = ClassType.getInstance(cd.getClassName());
     //visit each ClassBodyDeclaratuion. If it's a Field, add it to this thing's ClassType's list of fields
     //remember to start from the end of the list so that you add the base type's fields before the supertype's
-    
+    List<ClassBodyDeclaration> cbdList = cdType.getClassBodyDecls(true);
+    for(int i = cbdList.size()-1; i >= 0; i--) //for each class body declaration
+    {
+      ClassBodyDeclaration cbd = cbdList.get(i);
+      if(cbd instanceof FieldDeclaration)
+      {
+        // if it's a field...
+        FieldDeclaration fd = (FieldDeclaration) cbd;
+        visitNode(fd); //visit the field declaration node
+        List<Identifier> fdIds = fd.getDeclarations();
+        List<Integer> fdDims = fd.getDimensionList();
+        for(int j = 0; j < fdIds.size(); j++) //then for each variable declared on this declaration node
+        {
+          //add it to the list of Name/type/Depth tuples maintained by the ClassType
+          NameTypeDepth ntd = new NameTypeDepth(fdIds.get(j).getName(), fd.getType(), fdDims.get(j));
+          cdType.addToFields(ntd);
+        }
+      }
+      else
+      {
+        // TODO
+        //if it's a method...
+        //we're not equipped to handle that yet
+        Message.error(cd.getLoc(), "Methods not supported yet");
+      }
+    }
+    return cd;
   }
 
+  @Override public Tree visit(final FieldDeclaration fd)
+  {
+    // I don't think I need to do much here actually 
+    // all the heavy lifting is being done by the class declaration node above it
+    // the related DeclarationStatement (main variable decl) is adding things
+    // to the symbol table, nad since these Identifiers won't be in the symbol
+    // table I don't think we even need to visit those nodes
+    return fd;
+  }
 }
 
