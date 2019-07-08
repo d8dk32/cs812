@@ -8,10 +8,10 @@ CompilationUnit
   Class B extends A
     Declaration: int
       Identifier c
-    Declaration: D[][]
+    Declaration: Test[][]
       Identifier f
-  Class C extends Object
-  Class A extends Object
+  Class Test extends Object
+  Class A extends Test
     Declaration: int
       Identifier a
     Declaration: int[]
@@ -19,8 +19,13 @@ CompilationUnit
     Declaration: B
       Identifier c
 [main block]
-  Declaration: int
-    Identifier d
+  Declaration: B
+    Identifier b
+  ExpressionStatement: 
+    Assignment: 
+      Identifier b
+      true
+      Class instantiation: class B
   OutputStatement
     IntegerLiteral (int) 42
 </pre>

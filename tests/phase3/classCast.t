@@ -9,6 +9,8 @@ int main() {
   A a;
   B b;
   C c;
+  B d;
+  C e;
 
   // null references always succeed
   b = (B) a;
@@ -16,6 +18,9 @@ int main() {
 
   b = new B();
   c = new C();
+  e = new C();
+
+  d = (B) e;
 
   a = b;
   b = (B) a;

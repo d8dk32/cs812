@@ -220,6 +220,7 @@ public final class ClassType extends ReferenceType
     return true;
   }
 
+  //returns true if this class type has a field of the provided name
   public boolean containsField(String name)
   {
     for(NameTypeDepth ntd : this.fields)
@@ -228,6 +229,21 @@ public final class ClassType extends ReferenceType
         return true;
     }
     return false;
+  }
+
+  //returns true if this ClassType eventually inherits from the given ClassType
+  public boolean isSubclassOf(ClassType otherType)
+  {
+    if(otherType == null)
+      return false;
+    
+    if(this.superClass == null)
+      return false;
+
+    if(this.superClass == otherType)
+      return true;    
+    
+    return this.superClass.isSubclassOf(otherType);
   }
 }
 

@@ -400,21 +400,93 @@ public final class Analyze extends TreeVisitorBase<Tree>
       if(!toBeCast.getType().isArrayType())
       {
         Message.error(c.getLoc(), "Incompatible cast types");
+        c.setConversionType(Cast.ConversionType.INVALID);
       } else if (!c.getPresetType().compareArrayTypes((ArrayType) toBeCast.getType()))
       {
         Message.error(c.getLoc(), "Incompatible cast types");
+        c.setConversionType(Cast.ConversionType.INVALID);
       }
       c.setType(c.getPresetType());
+      c.setConversionType(Cast.ConversionType.IDENTITY);
     }
     else if (c.getParenExpression() != null)
     {
-      visitNode(c.getParenExpression());
-      if(c.getParenExpression().getType() != toBeCast.getType())
+      //it should be an identifier in the parens. if it's not I think there's a problem
+      
+      String typeName = null;
+      if(c.getParenExpression() instanceof Identifier) //if there is an identifier in the parens
       {
-        Message.error(c.getLoc(), "Incompatible cast types");
+        //use the identifier string as the type to cast to
+        typeName = ((Identifier) c.getParenExpression()).getName();
       }
-      c.setType(c.getParenExpression().getType());
+      else
+      { //if it's not an Identifier in the parens
+        //just bail out cause something is wrong
+        c.setConversionType(Cast.ConversionType.INVALID);
+        c.setType(ErrorType.getInstance());
+        Message.error(c.getLoc(), "Incompatible cast types");
+        return c;
+      }
+
+      //if "int" is in the parens, the only legaltype to cast from is int
+      if(typeName == "int")
+      {
+        if(toBeCast.getType() == IntegerType.getInstance())
+        {
+          c.setConversionType(Cast.ConversionType.IDENTITY);
+          c.setType(IntegerType.getInstance());
+          return c;
+        }
+        else
+        {
+          //cant cast to int from anything but int (except null?)
+          c.setConversionType(Cast.ConversionType.INVALID);
+          c.setType(ErrorType.getInstance());
+          Message.error(c.getLoc(), "Incompatible cast types");
+          return c;
+        }
+      }
+
+      //if there is a class name in parens
+      if(typeName != null 
+        && ClassType.getInstance(typeName).wasDeclared() 
+        && toBeCast.getType() instanceof ClassType)
+      { 
+        //check for identity conversion
+        if(toBeCast.getType() == ClassType.getInstance(typeName))
+        {
+          c.setConversionType(Cast.ConversionType.IDENTITY);
+          c.setType(ClassType.getInstance(typeName));
+        }
+        else
+        { //determine if it's a widening, narrowing or invalid (neither type is a subtype of the other)
+          ClassType toClass = ClassType.getInstance(typeName);
+          ClassType fromClass = (ClassType) toBeCast.getType();
+          c.setType(toClass);
+          if(fromClass.isSubclassOf(toClass))
+          {
+            c.setConversionType(Cast.ConversionType.WIDENING);
+          }
+          else if (toClass.isSubclassOf(fromClass))
+          {
+            c.setConversionType(Cast.ConversionType.NARROWING);
+          }
+          else
+          {
+            c.setConversionType(Cast.ConversionType.INVALID);
+            Message.error(c.getLoc(), "Incompatible cast types");
+          }
+        }
+      }
+      else
+      {   //something is wrong so error out
+          c.setConversionType(Cast.ConversionType.INVALID);
+          c.setType(ErrorType.getInstance());
+          Message.error(c.getLoc(), "Attempting to cast to undeclared class type.");
+          return c;
+      }
     }
+    Message.log("Conversion type: " + c.getConversionType());
     return c; 
   }
 

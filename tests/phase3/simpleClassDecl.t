@@ -1,19 +1,20 @@
 class B extends A {
 
   int c;
-  C[] f[];
+  Test[] f[];
 }
 
 int main() {
-  int d;
+  B b;
+  b = new B();
   out 42;
 }
 
-class C {
+class Test {
   ;
 }
 
-class A {
+class A extends Test{
 
   int a;
   int[] b;

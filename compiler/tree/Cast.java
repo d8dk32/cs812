@@ -9,9 +9,17 @@ import tc.compiler.tree.type.*;
  */
 public final class Cast extends Expression
 {
+    public enum ConversionType {
+        IDENTITY,
+        WIDENING,
+        NARROWING,
+        INVALID
+    }
+
     private ArrayType presetType = null;
     private Expression parenExpr = null;
     private Expression exprToCast;
+    private ConversionType conversionType = ConversionType.INVALID;
 
     public Cast(Location loc, ArrayType at, Expression exprToCast)
     {
@@ -42,6 +50,16 @@ public final class Cast extends Expression
     public Expression getToBeCastExpression()
     {
         return this.exprToCast;
+    }
+
+    public ConversionType getConversionType()
+    {
+        return this.conversionType;
+    }
+
+    public void setConversionType(ConversionType type)
+    {
+        this.conversionType = type;
     }
 
      /** Apply a visitor to the node.

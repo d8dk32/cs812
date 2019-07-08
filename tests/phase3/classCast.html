@@ -15,6 +15,10 @@ CompilationUnit
     Identifier b
   Declaration: C
     Identifier c
+  Declaration: B
+    Identifier d
+  Declaration: C
+    Identifier e
   ExpressionStatement: 
     Assignment: 
       Identifier b
@@ -37,6 +41,17 @@ CompilationUnit
     Assignment: 
       Identifier c
       Class instantiation: class C
+  ExpressionStatement: 
+    Assignment: 
+      Identifier e
+      Class instantiation: class C
+  ExpressionStatement: 
+    Assignment: 
+      Identifier d
+      Cast:
+        Identifier e
+        to
+        Identifier B
   ExpressionStatement: 
     Assignment: 
       Identifier a
