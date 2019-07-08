@@ -433,11 +433,27 @@ public final class Analyze extends TreeVisitorBase<Tree>
       else
       {
         Message.error(fa.getLoc(), "Field not valid for array types");
+        fa.setType(ErrorType.getInstance());
+      }
+    }
+    else if (fa.getObj().getType().isClassType())
+    {
+      //TODO
+      //What to do here?
+      ClassType ct = (ClassType) fa.getObj().getType();
+      if(!ct.wasDeclared() || ct.containsField(fa.getField().getName()))
+      {
+        Message.error(fa.getLoc(), "Invalid field access");
+        fa.setType(ErrorType.getInstance());
+      }
+      else
+      {
+        fa.setType(ct);
       }
     }
     else
     {
-      Message.error(fa.getLoc(), "Field Access not currently supported for this type");
+      Message.error(fa.getLoc(), "Field Access not supported for this type");
       fa.setType(ErrorType.getInstance());
     }
     return fa;

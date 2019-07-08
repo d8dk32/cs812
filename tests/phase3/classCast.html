@@ -1,0 +1,64 @@
+<head>
+<title> AST for classCast.t</title>
+</head>
+<body>
+<pre>
+CompilationUnit
+[classes]
+  Class A extends Object
+  Class B extends A
+  Class C extends B
+[main block]
+  Declaration: A
+    Identifier a
+  Declaration: B
+    Identifier b
+  Declaration: C
+    Identifier c
+  ExpressionStatement: 
+    Assignment: 
+      Identifier b
+      Cast:
+        Identifier a
+        to
+        Identifier B
+  ExpressionStatement: 
+    Assignment: 
+      Identifier c
+      Cast:
+        Identifier a
+        to
+        Identifier C
+  ExpressionStatement: 
+    Assignment: 
+      Identifier b
+      Class instantiation: class B
+  ExpressionStatement: 
+    Assignment: 
+      Identifier c
+      Class instantiation: class C
+  ExpressionStatement: 
+    Assignment: 
+      Identifier a
+      Identifier b
+  ExpressionStatement: 
+    Assignment: 
+      Identifier b
+      Cast:
+        Identifier a
+        to
+        Identifier B
+  ExpressionStatement: 
+    Assignment: 
+      Identifier a
+      Identifier c
+  ExpressionStatement: 
+    Assignment: 
+      Identifier c
+      Cast:
+        Identifier a
+        to
+        Identifier C
+  OutputStatement
+    IntegerLiteral (int) 1066
+</pre>

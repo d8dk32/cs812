@@ -219,5 +219,15 @@ public final class ClassType extends ReferenceType
   {
     return true;
   }
+
+  public boolean containsField(String name)
+  {
+    for(NameTypeDepth ntd : this.fields)
+    {
+      if (ntd.getName() == name)
+        return true;
+    }
+    return false;
+  }
 }
 

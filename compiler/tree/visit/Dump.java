@@ -185,6 +185,8 @@ public final class Dump extends TreeVisitorBase<Void>
       { visitNode((Identifier) assignment.getIdentifier()); }
     else if (assignment.getIdentifier() instanceof ArrayAccess)
       { visitNode((ArrayAccess) assignment.getIdentifier()); }
+    else if (assignment.getIdentifier() instanceof FieldAccess)
+      { visitNode((FieldAccess) assignment.getIdentifier()); }
     visitNode(assignment.getExpression());
     indentation -= increment;
 
@@ -306,7 +308,6 @@ public final class Dump extends TreeVisitorBase<Void>
     else if (c.getParenExpression() != null)
     {
       visitNode(c.getParenExpression());
-      emit(c.getParenExpression().getType().toString());
     }
     indentation -= increment;
     return null;
