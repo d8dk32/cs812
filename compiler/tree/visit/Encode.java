@@ -228,8 +228,8 @@ public final class Encode extends TreeVisitorBase<String>
       }
       else
       {
-        superClassLLVM =  "bitcast [1 x i8*]* " +
-          superClass.encodeRuntimeType() + " to i8*]";
+        superClassLLVM =  "bitcast ([1 x i8*]* " +
+          superClass.encodeRuntimeType() + " to i8*)";
       }
       emit("@" + name + "$VMT = global [1 x i8*] " +
         "[i8* " + superClassLLVM + "]");
@@ -247,11 +247,20 @@ public final class Encode extends TreeVisitorBase<String>
     {
       String s = "%class$" + name + " =  type { i8*";
       // fields will go here!
-      // TODO
-      // add fields to type
       for(NameTypeDepth ntd : ClassType.getInstance(name).getFields())
       {
-        
+        s += ", ";
+        if(ntd.getDepth() == 0)
+        {
+          if(ntd.getType() == "int")
+            s += "i32";
+          else
+            s += "%class$" + ntd.getType() + "*";
+        }
+        else if (ntd.getType() == "int" && ntd.getDepth() == 1)
+          s += "%array$int*";
+        else
+          s += "%array$ref*";
       }
       s +=  " }";
       emit(s);
@@ -366,7 +375,14 @@ public final class Encode extends TreeVisitorBase<String>
       else
       {
           //must be some kind of class type
-          Message.error(declStatement.getLoc(), "unsupported variable type");
+          if(depth > 0)
+          {
+            varType = new ArrayType(i.getName(), depth);
+          }
+          else
+          {
+            varType = ClassType.getInstance(declStatement.getType());
+          }
       }
       symbolTable.put(i.getName(),
             new TypeDepthPair(varType, depth));     
@@ -377,12 +393,13 @@ public final class Encode extends TreeVisitorBase<String>
 
       if(depth == 0)
       {
+        String emptyValue = (type == "i32" ? "0" : "null");
         //declare the variable in llvm code
         emit("; declaration statement");
         emit(declPointer + " = alloca " + type);
-        emit("; store 0 on declaration");
-        emit("store " + type + " " + '0' + ", " + type + "* " + declPointer);  
-      } else if (depth == 1) {
+        emit("; store empty value on declaration");
+        emit("store " + type + " " + emptyValue + ", " + type + "* " + declPointer);  
+      } else if (depth == 1 && declStatement.getType() == "int") {
         //declare the array in the llvm code
         //ONLY SUPPORTS INT ARRAYS ATM
         emit("; array declaration statement");
@@ -391,7 +408,6 @@ public final class Encode extends TreeVisitorBase<String>
       }
       else {
         //declare the array in the llvm code
-        //ONLY SUPPORTS INT ARRAYS ATM
         //multidimensional int arrays are refs?
         emit("; array declaration statement");
         emit(declPointer + "  = alloca %array$ref*");
@@ -418,7 +434,7 @@ public final class Encode extends TreeVisitorBase<String>
     if(assignment.getIdentifier() instanceof Identifier)
     { 
       id = visitNode((Identifier) assignment.getIdentifier());
-     }
+    }
     else if (assignment.getIdentifier() instanceof ArrayAccess)
     { 
       id = visitNode((ArrayAccess) assignment.getIdentifier()); 
@@ -428,6 +444,10 @@ public final class Encode extends TreeVisitorBase<String>
         id = getTemp();
         emit(id + " = bitcast i8** " + temp + " to " + assignmentType + "*");
       }
+    }
+    else if (assignment.getIdentifier() instanceof FieldAccess)
+    {
+      id = visitNode((FieldAccess) assignment.getIdentifier());
     }
     
 
@@ -707,12 +727,71 @@ public final class Encode extends TreeVisitorBase<String>
     }
     else
     {
-      Message.bug(fa.getLoc(), "Field Access not currently supported for this type");
+      //TODO
+      //field access for class types
+      
+      //get field index on class
+      ClassType ct = (ClassType) fa.getObj().getType();
+      int fieldIndex = ct.getFieldIndex(fa.getField().getName());
+
+      String actualVarType = ct.encodeType(); //class type encoding without the asterisk
+
+      // Null ref check:
+      emit("; Null reference check");
+      emit(nullCheckTemp + " = icmp eq " + varType + " " + objPtr + ", null");
+      emit("br i1 " + nullCheckTemp + ", label %" + nullLabel + ", label %" + proceedLabel);
+      emit(nullLabel + ":");
+      emit("call void @t_rt_print_null_ref_error(i32 " + fa.getLoc().getLine() + ")");
+      emit("br label %" + proceedLabel);
+      emit(proceedLabel + ":");
+      //get the field at it's index in the field list
+      emit(retval + " = getelementptr " + actualVarType + ", " + varType + " " + actualVarType + ", i32 0, i32 " + fieldIndex);
+
+      if (fa.isLeftSide())
+          return retval;
+
+      String temp2 = getTemp();
+      String fieldTypeEncode = fa.getType().encode();
+
+      emit(temp2 + " = load " + fieldTypeEncode + ", " + fieldTypeEncode + "* " + retval);
+
+       return temp2;
+      
     }
 
     //gonna need to do more here in the future
     return retval;
   }
+
+  @Override public String visit(final ClassInstanceCreationExpression cice)
+  {
+    ClassType ct = ClassType.getInstance(cice.getClassName());
+    String retval = getTemp();
+    String classType = ct.encode();
+    String classVMT = ct.encodeRuntimeType();
+    String sizeTemp1 = getTemp();
+    String sizeTemp2 = getTemp();
+    String objectTemp = getTemp();
+    String vmtTemp = getTemp();
+
+    int classSize = ct.getClassSize()+1; //plus one is beacuse of the extra i8* that all classes have
+
+    emit("; class instance creation");
+    
+    emit(sizeTemp1 + " = getelementptr " + classType + ", " + classType + "* null, i32 " + classSize);
+    emit(sizeTemp2 + " = ptrtoint " + classType + "* " + sizeTemp1 + " to i64");
+    //actually allocate object
+    emit(objectTemp + " = call i8* @t_rt_alloc(i64 " + sizeTemp2 + ", i32 " + cice.getLineNumber() + ")");
+    //do some funky stuff I'm pretty sure relates to the size of the vmt
+    emit(vmtTemp + " = bitcast i8* " + objectTemp + " to [1 x i8*]**");
+    emit("store [1 x i8*]* " + ct.encodeRuntimeType() + ", [1 x i8*]** " + vmtTemp);
+    //finally, bitcast that i8* back to the class type
+    emit(retval + " = bitcast i8* " + objectTemp + " to " + classType);
+
+    return retval;
+  }
+
+  //@Override public String visit()
 
 
 }

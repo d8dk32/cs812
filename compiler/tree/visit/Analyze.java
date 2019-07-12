@@ -7,6 +7,7 @@ import tc.compiler.tree.*;
 import tc.compiler.tree.type.*;
 import java.util.HashMap;
 import java.util.List;
+import tc.compiler.parse.TreeBuilder;
 
 /**
  * Analyze an AST to determine the semantics of the program. Information
@@ -267,15 +268,49 @@ public final class Analyze extends TreeVisitorBase<Tree>
 
   //visit assignment node
   @Override public Tree visit(final Assignment assignment) {
-
+    Type lhsType = ErrorType.getInstance();
     //visit its child nodes
     if(assignment.getIdentifier() instanceof Identifier)
-      { visitNode((Identifier) assignment.getIdentifier()); }
+    { 
+      visitNode((Identifier) assignment.getIdentifier()); 
+      lhsType = ((Identifier) assignment.getIdentifier()).getType(); 
+    }
     else if (assignment.getIdentifier() instanceof ArrayAccess)
-      { visitNode((ArrayAccess) assignment.getIdentifier()); }
+    { 
+      visitNode((ArrayAccess) assignment.getIdentifier()); 
+      lhsType = ((ArrayAccess) assignment.getIdentifier()).getType(); 
+    }
+    else if (assignment.getIdentifier() instanceof FieldAccess)
+    { 
+      visitNode((FieldAccess) assignment.getIdentifier()); 
+      lhsType = ((FieldAccess) assignment.getIdentifier()).getType(); 
+    }
     
     visitNode(assignment.getExpression());    
-  
+    Type exprType = assignment.getExpression().getType();
+    
+    if(exprType.isClassType() && lhsType.isClassType())
+    {
+      ClassType exprCt = (ClassType) exprType;
+      ClassType lhsCt = (ClassType) lhsType;
+      if(lhsCt != exprCt)
+      {
+        if(exprCt.isSubclassOf(lhsCt))
+        {
+          //insert widening cast
+          Cast cast = new Cast(assignment.getLoc(), 
+                              new Identifier(assignment.getLoc(), lhsCt.getName()), 
+                              assignment.getExpression()
+                              );
+          cast.setConversionType(Cast.ConversionType.WIDENING);
+          cast.setType(lhsCt);
+          assignment.setExpression(cast);
+          Message.log("Implicit widening cast: " + exprCt.getName() + " to " + lhsCt.getName());
+        }
+        else
+          Message.error(assignment.getLoc(), "Implicit narrowing cast not allowed");
+      }
+    }
 
     return assignment;
   }
@@ -361,11 +396,14 @@ public final class Analyze extends TreeVisitorBase<Tree>
       }
       else if (idTDP.getType().isArrayType())
       {
-        if( ((ArrayType) idTDP.getType()).getComponentType() == "int")
+        if( ((ArrayType) idTDP.getType()).getComponentType().equals("int"))
         {
           arrayComponentType = IntegerType.getInstance();
         }
-        //ELSE IT'S PROBABLY A CLASS TYPE, but I'm not supporting that yet 
+        else
+        {
+          arrayComponentType = ClassType.getInstance(((ArrayType) idTDP.getType()).getComponentType());
+        }
       }
       
     }
@@ -510,17 +548,24 @@ public final class Analyze extends TreeVisitorBase<Tree>
     }
     else if (fa.getObj().getType().isClassType())
     {
-      //TODO
-      //What to do here?
       ClassType ct = (ClassType) fa.getObj().getType();
-      if(!ct.wasDeclared() || ct.containsField(fa.getField().getName()))
+      String fieldName = fa.getField().getName();
+      if(!ct.wasDeclared() || ct.getFieldIndex(fieldName) == -1)
       {
         Message.error(fa.getLoc(), "Invalid field access");
         fa.setType(ErrorType.getInstance());
       }
       else
       {
-        fa.setType(ct);
+        //set the FieldAccess node's type to the type of the field it is accessing
+        String fieldType = ct.getFieldType(fieldName);
+        int fieldDepth = ct.getFieldDepth(fieldName);
+        if (fieldDepth > 0)
+          fa.setType(new ArrayType(fieldType, fieldDepth));
+        else if (fieldType.equals("int"))
+          fa.setType(IntegerType.getInstance());
+        else
+          fa.setType(ClassType.getInstance(fieldType));
       }
     }
     else

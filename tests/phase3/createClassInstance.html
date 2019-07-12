@@ -28,15 +28,13 @@ CompilationUnit
     Assignment: 
       Identifier a
       Class instantiation: class A
-        Args: 
-        IntegerLiteral (int) 1
   ExpressionStatement: 
     Assignment: 
       Identifier a
-      Class instantiation: class B
-        Args: 
-        IntegerLiteral (int) 1
-        IntegerLiteral (int) 2
+      Cast:
+        Class instantiation: class B
+        to
+        Identifier A
   ExpressionStatement: 
     Assignment: 
       Identifier b

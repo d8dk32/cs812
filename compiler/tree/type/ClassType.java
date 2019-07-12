@@ -188,7 +188,12 @@ public final class ClassType extends ReferenceType
    */
   @Override public String encode()
   {
-    return "%class$" + name + "*";
+    return "%class$" + name + "*" ;
+  }
+
+  public String encodeType()
+  {
+    return "%class$" + name; //just encode() without the asterisk
   }
 
   /** Return string for LLVM representation of the runtime type.
@@ -221,14 +226,47 @@ public final class ClassType extends ReferenceType
   }
 
   //returns true if this class type has a field of the provided name
-  public boolean containsField(String name)
+  public int getFieldIndex(String name)
+  {
+    for(int i = 1; i < this.fields.size() + 1; i++)
+    {
+      //field indices will be 1-indexed instead of 0-indexed
+      //because every class starts with an i8* that isn't one of these fields
+      //but you need to get the i-1th entry in the list
+      if (this.fields.get(i-1).getName().equals(name))
+        return i;
+    }
+    return -1;
+  }
+
+  public String getFieldType(String name)
   {
     for(NameTypeDepth ntd : this.fields)
     {
-      if (ntd.getName() == name)
-        return true;
+      if (ntd.getName().equals(name))
+        return ntd.getType();
     }
-    return false;
+    return null;
+  }
+
+  public int getFieldDepth(String name)
+  {
+    for(NameTypeDepth ntd : this.fields)
+    {
+      if (ntd.getName().equals(name))
+        return ntd.getDepth();
+    }
+    return -1;
+  }
+
+  public String fieldsToString()
+  {
+    String fieldStr = "";
+    for(NameTypeDepth ntd : this.fields)
+    {
+      fieldStr += ntd.getName() + " (" + ntd.getType() + "), ";
+    }
+    return fieldStr;
   }
 
   //returns true if this ClassType eventually inherits from the given ClassType
@@ -244,6 +282,11 @@ public final class ClassType extends ReferenceType
       return true;    
     
     return this.superClass.isSubclassOf(otherType);
+  }
+
+  public int getClassSize()
+  {
+    return this.fields.size();
   }
 }
 

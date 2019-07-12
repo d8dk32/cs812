@@ -1,0 +1,20 @@
+<head>
+<title> AST for simpleCreateClassInstance.t</title>
+</head>
+<body>
+<pre>
+CompilationUnit
+[classes]
+  Class A extends Object
+    Declaration: int
+      Identifier i
+[main block]
+  Declaration: A
+    Identifier a
+  ExpressionStatement: 
+    Assignment: 
+      Identifier a
+      Class instantiation: class A
+  OutputStatement
+    IntegerLiteral (int) 42
+</pre>
