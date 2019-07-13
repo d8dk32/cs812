@@ -10,6 +10,7 @@ void *t_rt_alloc(int64_t n, int32_t lineNumber);
 void t_rt_dealloc(void*);
 void *t_rt_new_intarray(int32_t lineNumber, void* runtimeType, int32_t numDims, int32_t lengthSpecified);
 void *t_rt_new_refarray(int32_t lineNumber, void* runtimeType, int32_t numDims, int32_t lengthSpecified);
+void t_rt_runtime_cast_check(int32_t lineNumber, void *toVMT, void *fromVMT);
 
 // print
 void t_rt_print_int(int32_t value);

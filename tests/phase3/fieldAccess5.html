@@ -1,0 +1,79 @@
+<head>
+<title> AST for fieldAccess5.t</title>
+</head>
+<body>
+<pre>
+CompilationUnit
+[classes]
+  Class C extends B
+    Declaration: int
+      Identifier i
+  Class B extends A
+    Declaration: int
+      Identifier i
+    Declaration: int
+      Identifier k
+  Class A extends Object
+    Declaration: int
+      Identifier i
+    Declaration: int
+      Identifier j
+[main block]
+  Declaration: B
+    Identifier b
+  ExpressionStatement: 
+    Assignment: 
+      Identifier b
+      Class instantiation: class B
+  ExpressionStatement: 
+    Assignment: 
+      Field Access: 
+        Identifier b
+        .
+        Identifier k
+      IntegerLiteral (int) 20
+  ExpressionStatement: 
+    Assignment: 
+      Field Access: 
+        Identifier b
+        .
+        Identifier i
+      IntegerLiteral (int) 22
+  Declaration: C
+    Identifier c
+  ExpressionStatement: 
+    Assignment: 
+      Identifier c
+      Class instantiation: class C
+  ExpressionStatement: 
+    Assignment: 
+      Field Access: 
+        Identifier c
+        .
+        Identifier i
+      IntegerLiteral (int) 1
+  OutputStatement
+    ADD (int) 
+    Field Access: 
+      Identifier b
+      .
+      Identifier i
+    Field Access: 
+      Identifier b
+      .
+      Identifier k
+  Declaration: A
+    Identifier a
+  ExpressionStatement: 
+    Assignment: 
+      Identifier a
+      Cast:
+        Identifier c
+        to
+        Identifier A
+  OutputStatement
+    Field Access: 
+      Identifier a
+      .
+      Identifier i
+</pre>

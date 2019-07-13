@@ -1,0 +1,35 @@
+<head>
+<title> AST for fieldErr.t</title>
+</head>
+<body>
+<pre>
+CompilationUnit
+[classes]
+  Class A extends Object
+    Declaration: int
+      Identifier i
+[main block]
+  Declaration: A
+    Identifier a
+  ExpressionStatement: 
+    Assignment: 
+      Identifier a
+      Class instantiation: class A
+  OutputStatement
+    Field Access: 
+      Identifier a
+      .
+      Identifier j
+  ExpressionStatement: 
+    Assignment: 
+      Field Access: 
+        Identifier a
+        .
+        Identifier i
+      IntegerLiteral (int) 42
+  OutputStatement
+    Field Access: 
+      Identifier a
+      .
+      Identifier i
+</pre>

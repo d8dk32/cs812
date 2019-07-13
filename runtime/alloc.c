@@ -59,6 +59,29 @@ void *t_rt_new_refarray(int32_t lineNumber, void* runtimeType, int32_t numDims, 
   return ret;
 }
 
+void t_rt_runtime_cast_check(int32_t lineNumber, void* toVMT, void* fromVMT)
+{
+  if (fromVMT == NULL || toVMT == NULL)
+  {
+    return;
+  }
+
+  while (fromVMT != NULL) 
+  {
+    if (fromVMT == toVMT) 
+    {
+      return;
+    }
+
+    fromVMT = *(void **) fromVMT;
+  }
+
+  if (fromVMT != toVMT)
+  {
+    printf("%d: ERROR: narrowing cast failed at runtime.\n", lineNumber);
+    exit(-1);
+  }
+}
 
 // deallocate space for an object or an array
 void t_rt_dealloc(void *ref)

@@ -208,6 +208,7 @@ public final class Encode extends TreeVisitorBase<String>
     emit("declare void @t_rt_print_logging(i32)");
     emit("declare i8* @t_rt_new_intarray(i32, i8*, i32, i32)");
     emit("declare i8* @t_rt_new_refarray(i32, i8*, i32, i32)");
+    emit("declare void @t_rt_runtime_cast_check(i32, i8*, i8*)");
     emit("");
 
     // get all the class names
@@ -684,23 +685,36 @@ public final class Encode extends TreeVisitorBase<String>
     //for now casts aren't really doing much. If they made it this far, it's basically a NO_OP
     String retval = visitNode(c.getToBeCastExpression());
     String temp;
-    ClassType toType = (ClassType) c.getType();
-    ClassType fromType = (ClassType) c.getToBeCastExpression().getType();
+    if(c.getType().isClassType())
+    {
+      ClassType toType = (ClassType) c.getType();
+      ClassType fromType = (ClassType) c.getToBeCastExpression().getType();
 
-    if(c.getConversionType() == ConversionType.WIDENING)
-    {
-      temp = retval;
-      retval = getTemp();
-      emit(retval + " = bitcast " + fromType.encode() + " " + temp + " to " + toType.encode());
-    }
-    else if (c.getConversionType() == ConversionType.NARROWING)
-    {
-      //for now. just do the cast. this should work fine like half the time.
-      //TODO
-      //actually do the runtime checking
-      temp = retval;
-      retval = getTemp();
-      emit(retval + " = bitcast " + fromType.encode() + " " + temp + " to " + toType.encode());
+      if(c.getConversionType() == ConversionType.WIDENING)
+      {
+        temp = retval;
+        retval = getTemp();
+        emit(retval + " = bitcast " + fromType.encode() + " " + temp + " to " + toType.encode());
+      }
+      else if (c.getConversionType() == ConversionType.NARROWING)
+      {
+        //for now. just do the cast. this should work fine like half the time.
+        //TODO
+        //actually do the runtime checking
+        Message.log("" + c.getLineNumber() + ": Narrowing cast, " + fromType.getName() + " to " + toType.getName());
+        temp = retval;
+        retval = getTemp();
+        String vmt = getTemp();
+
+        emit(retval + " = bitcast " + fromType.encode() + " " + temp + " to i8*");
+        emit(vmt + " = bitcast [1 x i8*]* " + toType.encodeRuntimeType() + " to i8*");
+        emit("call void @t_rt_runtime_cast_check(i32 " + c.getLineNumber() + ", i8* " + vmt + ", i8* " + retval + ")");
+
+        temp = retval;
+        retval = getTemp();
+        emit(retval + " = bitcast i8* " + temp + " to " + toType.encode());
+
+      }
     }
 
     return retval;

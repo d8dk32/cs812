@@ -1,0 +1,133 @@
+<head>
+<title> AST for castClassErr.t</title>
+</head>
+<body>
+<pre>
+CompilationUnit
+[classes]
+  Class A extends Object
+  Class B extends A
+  Class C extends B
+  Class D extends Object
+[main block]
+  Declaration: A
+    Identifier a
+  Declaration: B
+    Identifier b
+  Declaration: C
+    Identifier c
+  Declaration: D
+    Identifier d
+  ExpressionStatement: 
+    Assignment: 
+      Identifier a
+      Cast:
+        Identifier a
+        to
+        Identifier A
+  ExpressionStatement: 
+    Assignment: 
+      Identifier b
+      Cast:
+        Identifier a
+        to
+        Identifier B
+  ExpressionStatement: 
+    Assignment: 
+      Identifier c
+      Cast:
+        Identifier a
+        to
+        Identifier C
+  ExpressionStatement: 
+    Assignment: 
+      Identifier d
+      Cast:
+        Identifier a
+        to
+        Identifier D
+  ExpressionStatement: 
+    Assignment: 
+      Identifier a
+      Cast:
+        Identifier b
+        to
+        Identifier A
+  ExpressionStatement: 
+    Assignment: 
+      Identifier b
+      Cast:
+        Identifier b
+        to
+        Identifier B
+  ExpressionStatement: 
+    Assignment: 
+      Identifier c
+      Cast:
+        Identifier b
+        to
+        Identifier C
+  ExpressionStatement: 
+    Assignment: 
+      Identifier d
+      Cast:
+        Identifier b
+        to
+        Identifier D
+  ExpressionStatement: 
+    Assignment: 
+      Identifier a
+      Cast:
+        Identifier c
+        to
+        Identifier A
+  ExpressionStatement: 
+    Assignment: 
+      Identifier b
+      Cast:
+        Identifier c
+        to
+        Identifier B
+  ExpressionStatement: 
+    Assignment: 
+      Identifier c
+      Cast:
+        Identifier c
+        to
+        Identifier C
+  ExpressionStatement: 
+    Assignment: 
+      Identifier d
+      Cast:
+        Identifier c
+        to
+        Identifier D
+  ExpressionStatement: 
+    Assignment: 
+      Identifier a
+      Cast:
+        Identifier d
+        to
+        Identifier A
+  ExpressionStatement: 
+    Assignment: 
+      Identifier b
+      Cast:
+        Identifier d
+        to
+        Identifier B
+  ExpressionStatement: 
+    Assignment: 
+      Identifier c
+      Cast:
+        Identifier d
+        to
+        Identifier C
+  ExpressionStatement: 
+    Assignment: 
+      Identifier d
+      Cast:
+        Identifier d
+        to
+        Identifier D
+</pre>

@@ -1,0 +1,79 @@
+<head>
+<title> AST for while.t</title>
+</head>
+<body>
+<pre>
+CompilationUnit
+[classes]
+[main block]
+  Declaration: int
+    Identifier x
+  ExpressionStatement: 
+    Assignment: 
+      Identifier x
+      IntegerLiteral (int) 10
+  While:
+  Identifier x
+    Start Block -> 
+      OutputStatement
+        Identifier x
+      ExpressionStatement: 
+        Assignment: 
+          Identifier x
+          ADD (int) 
+          Identifier x
+          NEGATE (int) 
+          IntegerLiteral (int) 1
+    End Block <- 
+  While:
+  Identifier x
+    Start Block -> 
+      OutputStatement
+        Identifier x
+    End Block <- 
+  While:
+  Identifier x
+    Empty Statement...
+  While:
+  Identifier x
+    Start Block -> 
+    End Block <- 
+  ExpressionStatement: 
+    Assignment: 
+      Identifier x
+      IntegerLiteral (int) 5
+  Declaration: int
+    Identifier y
+  While:
+  Identifier x
+    Start Block -> 
+      ExpressionStatement: 
+        Assignment: 
+          Identifier y
+          Identifier x
+      While:
+      Identifier y
+        Start Block -> 
+          OutputStatement
+            ADD (int) 
+            Identifier x
+            Identifier y
+          ExpressionStatement: 
+            Assignment: 
+              Identifier y
+              ADD (int) 
+              Identifier y
+              NEGATE (int) 
+              IntegerLiteral (int) 1
+        End Block <- 
+      OutputStatement
+        IntegerLiteral (int) 1999
+      ExpressionStatement: 
+        Assignment: 
+          Identifier x
+          ADD (int) 
+          Identifier x
+          NEGATE (int) 
+          IntegerLiteral (int) 1
+    End Block <- 
+</pre>
