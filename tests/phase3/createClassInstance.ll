@@ -1,6 +1,6 @@
 ; source file: createClassInstance.t
 ; T version: 1.0
-; compiled: Fri Jul 12 14:24:53 EDT 2019
+; compiled: Fri Jul 12 21:54:00 EDT 2019
 
 ; declarations for the runtime support functions
 declare void @t_rt_alloc_init()
@@ -56,17 +56,18 @@ define void @main() {
   %temp9 = bitcast i8* %temp8 to [1 x i8*]**
   store [1 x i8*]* @B$VMT, [1 x i8*]** %temp9
   %temp5 = bitcast i8* %temp8 to %class$B*
+  %temp10 = bitcast %class$B* %temp5 to %class$A*
   ; store assigned value
-  store %class$A* %temp5, %class$A** %a
+  store %class$A* %temp10, %class$A** %a
   ; class instance creation
-  %temp11 = getelementptr %class$B*, %class$B** null, i32 7
-  %temp12 = ptrtoint %class$B** %temp11 to i64
-  %temp13 = call i8* @t_rt_alloc(i64 %temp12, i32 18)
-  %temp14 = bitcast i8* %temp13 to [1 x i8*]**
-  store [1 x i8*]* @B$VMT, [1 x i8*]** %temp14
-  %temp10 = bitcast i8* %temp13 to %class$B*
+  %temp12 = getelementptr %class$B*, %class$B** null, i32 7
+  %temp13 = ptrtoint %class$B** %temp12 to i64
+  %temp14 = call i8* @t_rt_alloc(i64 %temp13, i32 18)
+  %temp15 = bitcast i8* %temp14 to [1 x i8*]**
+  store [1 x i8*]* @B$VMT, [1 x i8*]** %temp15
+  %temp11 = bitcast i8* %temp14 to %class$B*
   ; store assigned value
-  store %class$B* %temp10, %class$B** %b
+  store %class$B* %temp11, %class$B** %b
   ; call to runtime function to output a value
   call void @t_rt_print_int(i32 42)
   ret void

@@ -1,6 +1,6 @@
 ; source file: fieldAccess.t
 ; T version: 1.0
-; compiled: Fri Jul 12 13:55:51 EDT 2019
+; compiled: Fri Jul 12 21:52:51 EDT 2019
 
 ; declarations for the runtime support functions
 declare void @t_rt_alloc_init()
@@ -45,15 +45,44 @@ define void @main() {
   store %class$A* %temp0, %class$A** %a
   ; load value from variable
   %temp5 = load %class$A*, %class$A** %a
+  ; field access
+  ; Null reference check
+  %temp6 = icmp eq %class$A* %temp5, null
+  br i1 %temp6, label %label0, label %label1
+  label0:
+  call void @t_rt_print_null_ref_error(i32 8)
+  br label %label1
+  label1:
+  %temp8 = getelementptr %class$A, %class$A* %temp5, i32 0, i32 1
+  %temp10 = load i32, i32* %temp8
   ; call to runtime function to output a value
-  call void @t_rt_print_int(i32 %temp8)
+  call void @t_rt_print_int(i32 %temp10)
   ; load value from variable
-  %temp10 = load %class$A*, %class$A** %a
+  %temp11 = load %class$A*, %class$A** %a
+  ; field access
+  ; Null reference check
+  %temp12 = icmp eq %class$A* %temp11, null
+  br i1 %temp12, label %label2, label %label3
+  label2:
+  call void @t_rt_print_null_ref_error(i32 9)
+  br label %label3
+  label3:
+  %temp14 = getelementptr %class$A, %class$A* %temp11, i32 0, i32 1
   ; store assigned value
-  store i32 42, i32* %temp13
+  store i32 42, i32* %temp14
   ; load value from variable
-  %temp15 = load %class$A*, %class$A** %a
+  %temp16 = load %class$A*, %class$A** %a
+  ; field access
+  ; Null reference check
+  %temp17 = icmp eq %class$A* %temp16, null
+  br i1 %temp17, label %label4, label %label5
+  label4:
+  call void @t_rt_print_null_ref_error(i32 10)
+  br label %label5
+  label5:
+  %temp19 = getelementptr %class$A, %class$A* %temp16, i32 0, i32 1
+  %temp21 = load i32, i32* %temp19
   ; call to runtime function to output a value
-  call void @t_rt_print_int(i32 %temp18)
+  call void @t_rt_print_int(i32 %temp21)
   ret void
 }

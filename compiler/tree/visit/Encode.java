@@ -12,6 +12,7 @@ import java.util.Date;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Stack;
+import tc.compiler.tree.Cast.ConversionType;
 
 /**
  * Does a traversal of the AST to generate LLVM code to execute the program
@@ -681,7 +682,28 @@ public final class Encode extends TreeVisitorBase<String>
   @Override public String visit(final Cast c)
   {
     //for now casts aren't really doing much. If they made it this far, it's basically a NO_OP
-    return visitNode(c.getToBeCastExpression());
+    String retval = visitNode(c.getToBeCastExpression());
+    String temp;
+    ClassType toType = (ClassType) c.getType();
+    ClassType fromType = (ClassType) c.getToBeCastExpression().getType();
+
+    if(c.getConversionType() == ConversionType.WIDENING)
+    {
+      temp = retval;
+      retval = getTemp();
+      emit(retval + " = bitcast " + fromType.encode() + " " + temp + " to " + toType.encode());
+    }
+    else if (c.getConversionType() == ConversionType.NARROWING)
+    {
+      //for now. just do the cast. this should work fine like half the time.
+      //TODO
+      //actually do the runtime checking
+      temp = retval;
+      retval = getTemp();
+      emit(retval + " = bitcast " + fromType.encode() + " " + temp + " to " + toType.encode());
+    }
+
+    return retval;
   }
 
   @Override public String visit(final FieldAccess fa)
@@ -696,12 +718,13 @@ public final class Encode extends TreeVisitorBase<String>
     String nullLabel = getLabel();
     String proceedLabel = getLabel();
 
+    emit("; field access");
     if(fa.getObj().getType().isArrayType()) 
     {
       //don't actually visit the length identifier because it won't have been defined, but that's ok
       if(fa.getField().getName().equals("length"))
       {
-        
+      
         //check to make sure the array has actually been defined
         emit("; check for null reference");
         emit(nullCheckTemp + " = icmp eq " + varType + "* " + objPtr + ", null");
@@ -727,11 +750,11 @@ public final class Encode extends TreeVisitorBase<String>
     }
     else
     {
-      //TODO
       //field access for class types
       
       //get field index on class
       ClassType ct = (ClassType) fa.getObj().getType();
+      Message.log("field access, line " + fa.getLineNumber() + ", type " + ct.getName());
       int fieldIndex = ct.getFieldIndex(fa.getField().getName());
 
       String actualVarType = ct.encodeType(); //class type encoding without the asterisk
@@ -745,7 +768,7 @@ public final class Encode extends TreeVisitorBase<String>
       emit("br label %" + proceedLabel);
       emit(proceedLabel + ":");
       //get the field at it's index in the field list
-      emit(retval + " = getelementptr " + actualVarType + ", " + varType + " " + actualVarType + ", i32 0, i32 " + fieldIndex);
+      emit(retval + " = getelementptr " + actualVarType + ", " + varType + " " + objPtr + ", i32 0, i32 " + fieldIndex);
 
       if (fa.isLeftSide())
           return retval;
@@ -755,7 +778,7 @@ public final class Encode extends TreeVisitorBase<String>
 
       emit(temp2 + " = load " + fieldTypeEncode + ", " + fieldTypeEncode + "* " + retval);
 
-       return temp2;
+      return temp2;
       
     }
 

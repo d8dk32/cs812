@@ -228,13 +228,13 @@ public final class ClassType extends ReferenceType
   //returns true if this class type has a field of the provided name
   public int getFieldIndex(String name)
   {
-    for(int i = 1; i < this.fields.size() + 1; i++)
+    for(int i = this.fields.size()-1; i >= 0; i--)
     {
       //field indices will be 1-indexed instead of 0-indexed
       //because every class starts with an i8* that isn't one of these fields
       //but you need to get the i-1th entry in the list
-      if (this.fields.get(i-1).getName().equals(name))
-        return i;
+      if (this.fields.get(i).getName().equals(name))
+        return i+1;
     }
     return -1;
   }

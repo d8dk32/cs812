@@ -582,7 +582,7 @@ public final class Analyze extends TreeVisitorBase<Tree>
     //visit each ClassBodyDeclaratuion. If it's a Field, add it to this thing's ClassType's list of fields
     //remember to start from the end of the list so that you add the base type's fields before the supertype's
     List<ClassBodyDeclaration> cbdList = cdType.getClassBodyDecls(true);
-    for(int i = cbdList.size()-1; i >= 0; i--) //for each class body declaration
+    for(int i = 0; i < cbdList.size(); i++) //for each class body declaration
     {
       ClassBodyDeclaration cbd = cbdList.get(i);
       if(cbd instanceof FieldDeclaration)
