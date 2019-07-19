@@ -119,6 +119,10 @@ classBodyDeclaration
   returns [ ClassBodyDeclaration lval ]
   : fd=fieldDeclaration
     { $lval = $fd.lval; }
+  | md=methodDeclaration
+    { $lval = $md.lval; }
+  | cd=constructorDeclaration
+    { $lval = $cd.lval; }
   | SEMICOLON
     { $lval = null; }
   ;
@@ -133,6 +137,46 @@ fieldDeclaration
     { $lval = buildFieldDeclaration(loc($start), $i.lval.getName(), 0, $d.lval, $d.ivals); }
   ;
 
+methodDeclaration
+  returns [ MethodDeclaration lval ]
+  : at=arrayType md=methodDeclarator b=block
+    { $lval = buildMethodDeclaration(loc($start), $at.lval, $at.dval, $md.name, $md.params, $md.dims, $b.lval); }
+  | INT md=methodDeclarator b=block
+    { $lval = buildMethodDeclaration(loc($start), "int", 0, $md.name, $md.params, $md.dims, $b.lval); }
+  | i=identifier md=methodDeclarator b=block
+    { $lval = buildMethodDeclaration(loc($start), $i.lval.getName(), 0, $md.name, $md.params, $md.dims, $b.lval); }
+  ;
+
+methodDeclarator
+  returns [ String name, ArrayList<NameTypeDepth> params, int dims ]
+  : i=identifier fp=formalParameters
+    { $name = $i.lval.getName(); $params = $fp.lval; $dims = 0;}
+  | i=identifier fp=formalParameters d=dimensions 
+    { $name = $i.lval.getName(); $params = $fp.lval; $dims = $d.lval; }
+  ;
+
+formalParameters
+  returns [ ArrayList<NameTypeDepth> lval ]
+  : LPAREN pl=parameterList RPAREN
+    { $lval = $pl.lval; }
+  | LPAREN RPAREN
+    { $lval = new ArrayList<NameTypeDepth>(); }
+  ;
+
+parameterList
+  returns [ ArrayList<NameTypeDepth> lval ]
+  : pl=parameterList COMMA p=parameter
+    { $pl.lval.add($p.lval); $lval = $pl; }
+  | p=parameter
+    { $lval = new ArrayList<NameTypeDepth>(); $lval.add($p.lval); }
+  ;
+
+parameter
+  returns [ NameTypeDepth lval ]
+  : t=type id=identifier d=dimensions
+    { $lval = new NameTypeDepth($id.lval.getName(), $t.lval, $t.dval+$d.lval); }
+  | t=type id=identifier
+    { $lval = new NameTypeDepth($id.lval.getName(), $t.lval, $t.dval); }
 
 block
   returns [ Block lval ]
@@ -179,13 +223,13 @@ statement
   ;
 
 breakStatement
-returns [ BreakStatement lval ]
+  returns [ BreakStatement lval ]
   : BREAK SEMICOLON
     { $lval = buildBreakStatement(loc($start)); }
   ;
 
 continueStatement
-returns [ ContinueStatement lval ]
+  returns [ ContinueStatement lval ]
   : CONTINUE SEMICOLON
     { $lval = buildContinueStatement(loc($start)); }
   ;
@@ -455,6 +499,16 @@ arrayAccess
     { $lval = buildArrayAccess(loc($start), $i.lval, $de1.lval); }
   | aa=arrayAccess de2=dimensionExpression
     { $lval = buildArrayAccess(loc($start), $aa.lval, $de2.lval); }
+  ;
+
+type
+  returns [ String lval, int dval ]
+  : at=arrayType
+    { $lval = $at.lval; $dval = $at.dval; }
+  | INT
+    { $lval = "int"; $dval = 0;}
+  | INDENTIFIER
+    { $lval = $IDENTIFIER.text; $dval = 0; }
   ;
 
 // fragments to support the lexer rules
