@@ -121,8 +121,6 @@ classBodyDeclaration
     { $lval = $fd.lval; }
   | md=methodDeclaration
     { $lval = $md.lval; }
-  | cd=constructorDeclaration
-    { $lval = $cd.lval; }
   | SEMICOLON
     { $lval = null; }
   ;
@@ -140,11 +138,11 @@ fieldDeclaration
 methodDeclaration
   returns [ MethodDeclaration lval ]
   : at=arrayType md=methodDeclarator b=block
-    { $lval = buildMethodDeclaration(loc($start), $at.lval, $at.dval, $md.name, $md.params, $md.dims, $b.lval); }
+    { $lval = buildMethodDeclaration(loc($start), $at.lval, $at.dval + $md.dims, $md.name, $md.params, $b.lval); }
   | INT md=methodDeclarator b=block
-    { $lval = buildMethodDeclaration(loc($start), "int", 0, $md.name, $md.params, $md.dims, $b.lval); }
+    { $lval = buildMethodDeclaration(loc($start), "int", $md.dims, $md.name, $md.params, $b.lval); }
   | i=identifier md=methodDeclarator b=block
-    { $lval = buildMethodDeclaration(loc($start), $i.lval.getName(), 0, $md.name, $md.params, $md.dims, $b.lval); }
+    { $lval = buildMethodDeclaration(loc($start), $i.lval.getName(), $md.dims, $md.name, $md.params, $b.lval); }
   ;
 
 methodDeclarator
