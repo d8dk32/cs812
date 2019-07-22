@@ -153,6 +153,30 @@ methodDeclarator
     { $name = $i.lval.getName(); $params = $fp.lval; $dims = $d.lval; }
   ;
 
+constructorDeclaration
+  returns [ ConstructorDeclaration lval ]
+  : i=identifier fp=formalParameters cb=constructorBody
+    { $lval = buildConstructorDeclaration(loc($start),$i.lval.getName(), $fp.lval, $cd.lval); }
+  ;
+
+constructorBody
+  returns [ List<Statement> lval ]
+  : LBRACK ci=constructorInvocation bs=blockStatements RBRACK
+    { $lval = new ArrayList<Statement>(); $lval.add($ci.lval); $lval.addAll($bs.lval); }
+  | LBRACK ci=constructorInvocation RBRACK
+    { $lval = new ArrayList<Statement>(); $lval.add($ci.lval); }
+  | b=block
+    { $lval = $b.lval.getStatementList(); }
+  ;
+
+constructorInvocation
+  returns [ ConstructorInvocation lval ]
+  : THIS a=arguments SEMICOLON
+    { $lval = buildConstructorInvocation(loc($start), false, $a.lval); }
+  | SUPER a=arguments SEMICOLON
+    { $lval = buildConstructorInvocation(loc($start), true, $a.lval); }
+  ;
+
 formalParameters
   returns [ ArrayList<NameTypeDepth> lval ]
   : LPAREN pl=parameterList RPAREN
@@ -164,7 +188,7 @@ formalParameters
 parameterList
   returns [ ArrayList<NameTypeDepth> lval ]
   : pl=parameterList COMMA p=parameter
-    { $pl.lval.add($p.lval); $lval = $pl; }
+    { $pl.lval.add($p.lval); $lval = $pl.lval; }
   | p=parameter
     { $lval = new ArrayList<NameTypeDepth>(); $lval.add($p.lval); }
   ;
@@ -175,6 +199,7 @@ parameter
     { $lval = new NameTypeDepth($id.lval.getName(), $t.lval, $t.dval+$d.lval); }
   | t=type id=identifier
     { $lval = new NameTypeDepth($id.lval.getName(), $t.lval, $t.dval); }
+  ;
 
 block
   returns [ Block lval ]
@@ -505,7 +530,7 @@ type
     { $lval = $at.lval; $dval = $at.dval; }
   | INT
     { $lval = "int"; $dval = 0;}
-  | INDENTIFIER
+  | IDENTIFIER
     { $lval = $IDENTIFIER.text; $dval = 0; }
   ;
 
@@ -558,6 +583,8 @@ CONTINUE : 'continue';
 NEW : 'new';
 CLASS : 'class';
 EXTENDS : 'extends';
+THIS : 'this';
+SUPER : 'super';
 
 IDENTIFIER : Letter (Letter | Digit)*;
 

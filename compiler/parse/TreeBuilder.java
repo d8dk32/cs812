@@ -284,7 +284,7 @@ public final class TreeBuilder
    }
 
    /* build new method declaration instance */
-   public static MethodDeclaration buildMethodDeclaration(final Location loc, String type, int typeDims String name, List<NameTypeDepth> params, Block body)
+   public static MethodDeclaration buildMethodDeclaration(final Location loc, String type, int typeDims, String name, List<NameTypeDepth> params, Block body)
    {
      return new MethodDeclaration(loc, type, typeDims, name, params, body);
    }

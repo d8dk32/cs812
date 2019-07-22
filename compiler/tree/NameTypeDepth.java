@@ -1,5 +1,10 @@
 package tc.compiler.tree;
 
+import javax.lang.model.util.ElementScanner6;
+
+import tc.compiler.tree.type.ClassType;
+import tc.compiler.tree.type.*;
+
 //A class that holds a string representing the name of a field, it's base type, and it's depth (0 if not an array)
 //going to try just using a String to represent the type for this. i think it will be ok.
 public final class NameTypeDepth
@@ -32,13 +37,32 @@ public final class NameTypeDepth
 
     public String toString()
     {
-        String ntdString = "NTD: " + this.name + ", " + this.type;
+        String ntdString = this.type;
         int i = 0;
         while(i < this.depth)
         {
             ntdString += "[]";
             i++;
         }
+        ntdString += " " + this.name;
         return ntdString;
     }
+
+    //Returns a real Type represented by this NameTypeDepth
+    public Type toType()
+    {
+        if(this.depth > 0)
+        {
+            return new ArrayType(this.type, this.depth);
+        }
+        else if (this.type.equals("int"))
+        {
+            return IntegerType.getInstance();
+        }
+        else
+        {
+            return ClassType.getInstance(this.type);
+        }
+    }
+
 }

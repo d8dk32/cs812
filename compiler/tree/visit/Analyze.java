@@ -603,8 +603,9 @@ public final class Analyze extends TreeVisitorBase<Tree>
       {
         // TODO
         //if it's a method...
-        //we're not equipped to handle that yet
-        Message.error(cd.getLoc(), "Methods not supported yet");
+        MethodDeclaration md = (MethodDeclaration) cbd;
+        visitNode(md); //visit methodDeclaration node
+        cdType.addToMethods(md.getMethod());
       }
     }
     return cd;
@@ -625,6 +626,28 @@ public final class Analyze extends TreeVisitorBase<Tree>
     }
 
     return fd;
+  }
+
+  @Override public Tree visit(final MethodDeclaration md)
+  {
+    //not entirely sure what needs to happen here. I guess make sure the return type and param types are all valid,
+    //and then visit the body node
+    if(md.getType() != "int" && !ClassType.getInstance(md.getType()).wasDeclared())
+    {
+      Message.error(md.getLoc(), "Undeclared class type " + md.getType());
+    }
+
+    for(NameTypeDepth ntd : md.getParams())
+    {
+      if(ntd.getType() != "int" && !ClassType.getInstance(ntd.getType()).wasDeclared())
+      {
+        Message.error(md.getLoc(), "Undeclared class type " + ntd.getType());
+      }    
+    }
+
+    visitNode(md.getBody());
+
+    return md;
   }
 
   @Override public Tree visit(final ClassInstanceCreationExpression cice)

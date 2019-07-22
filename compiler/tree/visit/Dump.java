@@ -370,5 +370,16 @@ public final class Dump extends TreeVisitorBase<Void>
     return null;
   }
 
+  @Override public Void visit(final MethodDeclaration md)
+  {
+    emit("Method Declaration: " + md.getMethod().toString());
+    indentation += increment;
+    emit("Method Body: ");
+    visit(md.getBody());
+    indentation -= increment;
+
+    return null;
+  }
+
 }
 

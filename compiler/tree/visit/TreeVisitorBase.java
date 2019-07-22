@@ -193,5 +193,11 @@ public class TreeVisitorBase<T> implements TreeVisitor<T>
     return null;
   }
 
+  /** visit a MethodDeclaration. Override to provide specific behavior */
+  @Override public T visit(final MethodDeclaration md)
+  {
+    return null;
+  }
+
 }
 

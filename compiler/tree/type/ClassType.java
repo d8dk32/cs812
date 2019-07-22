@@ -32,6 +32,8 @@ public final class ClassType extends ReferenceType
   //getClassBodyDecls() returns
   private List<NameTypeDepth> fields = new ArrayList<NameTypeDepth>();
 
+  private List<Method> methods = new ArrayList<Method>();
+
   /** Create/retrieve a class type. If class already exists with the
    *  given name, then return that type, else return a new type.
    *  @param name name of the class type.
@@ -126,6 +128,17 @@ public final class ClassType extends ReferenceType
     this.fields.add(ntd);
   }
 
+  public List<Method> getMethods()
+  {
+    return this.methods;
+  }
+
+  public void addToMethods(Method meth)
+  {
+    meth.setContainingClass(this);
+    this.methods.add(meth);
+  }
+
   /** Dump all the class types to stderr for debugging purposes.
    */
   static public void dumpClasses()
@@ -156,11 +169,10 @@ public final class ClassType extends ReferenceType
             System.err.println("      Field: " + fd.getType() + dims + " " + i.getName());
           }
         }
-        else
+        else if (cbd instanceof MethodDeclaration)
         {
-          //it's a method but we're not handling that yet
-          // TODO
-          //handle methods
+          MethodDeclaration md = (MethodDeclaration) cbd;
+          System.err.println("      Method: " + md.getMethod().toString());
         }
       }
     }

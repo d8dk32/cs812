@@ -77,5 +77,26 @@ public abstract class Type
     return 0;
   }
 
+  //utility method to create a (non-method) type from a string and a depth
+  public static Type createType(String componentType, int depth)
+  {
+    Type t = null;
+
+    if(depth > 0)
+    {
+      t = new ArrayType(componentType, depth);
+    }
+    else if (componentType.equals("int"))
+    {
+      t = IntegerType.getInstance();
+    }
+    else
+    {
+      t = ClassType.getInstance(componentType)
+  ;  }
+
+    return t;
+  }
+
 }
 

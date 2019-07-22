@@ -54,5 +54,7 @@ public interface TreeVisitor<T>
 
   T visit(ClassInstanceCreationExpression cice);
 
+  T visit(MethodDeclaration md);
+
 }
 

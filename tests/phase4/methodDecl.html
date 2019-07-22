@@ -1,0 +1,43 @@
+<head>
+<title> AST for methodDecl.t</title>
+</head>
+<body>
+<pre>
+CompilationUnit
+[classes]
+  Class A extends Object
+    Method Declaration: int meth1()
+      Method Body: 
+      Start Block -> 
+        OutputStatement
+          IntegerLiteral (int) 1
+      End Block <- 
+    Method Declaration: int meth2()
+      Method Body: 
+      Start Block -> 
+        OutputStatement
+          IntegerLiteral (int) 2
+      End Block <- 
+    Method Declaration: int meth3()
+      Method Body: 
+      Start Block -> 
+        OutputStatement
+          IntegerLiteral (int) 3
+      End Block <- 
+  Class B extends A
+    Method Declaration: A meth4()
+      Method Body: 
+      Start Block -> 
+        OutputStatement
+          IntegerLiteral (int) 4
+      End Block <- 
+    Method Declaration: B meth5()
+      Method Body: 
+      Start Block -> 
+        OutputStatement
+          IntegerLiteral (int) 5
+      End Block <- 
+[main block]
+  OutputStatement
+    IntegerLiteral (int) 42
+</pre>
