@@ -1,6 +1,6 @@
 ; source file: methodDecl.t
 ; T version: 1.0
-; compiled: Sun Jul 21 21:07:40 EDT 2019
+; compiled: Tue Jul 30 13:52:18 EDT 2019
 
 ; declarations for the runtime support functions
 declare void @t_rt_alloc_init()

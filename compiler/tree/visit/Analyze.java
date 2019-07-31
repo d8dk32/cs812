@@ -599,15 +599,36 @@ public final class Analyze extends TreeVisitorBase<Tree>
           cdType.addToFields(ntd);
         }
       }
-      else
+      else if (cbd instanceof MethodDeclaration)
       {
-        // TODO
         //if it's a method...
         MethodDeclaration md = (MethodDeclaration) cbd;
         visitNode(md); //visit methodDeclaration node
         cdType.addToMethods(md.getMethod());
       }
+      else if (cbd instanceof ConstructorDeclaration)
+      {
+        // TODO
+        //if it's a constructor...
+        ConstructorDeclaration cdecl = (ConstructorDeclaration) cbd;
+        visitNode(cdecl); //visit methodDeclaration node
+        
+        //slightly hacky:
+        //make sure the constructor matches its enclosing class, but ignore it if it's an "inherited" constructor
+        if (cdecl.getClassType() != cdType && !cdType.isSubclassOf(cdecl.getClassType()))
+        {
+          Message.error(cdecl.getLoc(), "Constructor type " + cdecl.getClassName() + " doesn't match class " + cdType.getName());
+        }
+
+        //constructors can't actually be inherited though so ignore it unless it actually matches its enclosing class
+        if(cdecl.getClassType() == cdType)
+        {
+          cdType.addToConstructors(cdecl);
+        }
+      }
+
     }
+    
     return cd;
   }
 

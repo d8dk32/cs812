@@ -34,6 +34,8 @@ public final class ClassType extends ReferenceType
 
   private List<Method> methods = new ArrayList<Method>();
 
+  private List<ConstructorDeclaration> constructors = new ArrayList<ConstructorDeclaration>();
+
   /** Create/retrieve a class type. If class already exists with the
    *  given name, then return that type, else return a new type.
    *  @param name name of the class type.
@@ -139,6 +141,16 @@ public final class ClassType extends ReferenceType
     this.methods.add(meth);
   }
 
+  public void addToConstructors(ConstructorDeclaration cd)
+  {
+    this.constructors.add(cd);
+  }
+
+  public List<ConstructorDeclaration> getConstructors()
+  {
+    return this.constructors;
+  }
+
   /** Dump all the class types to stderr for debugging purposes.
    */
   static public void dumpClasses()
@@ -173,6 +185,11 @@ public final class ClassType extends ReferenceType
         {
           MethodDeclaration md = (MethodDeclaration) cbd;
           System.err.println("      Method: " + md.getMethod().toString());
+        }
+        else if (cbd instanceof ConstructorDeclaration)
+        {
+          ConstructorDeclaration cd = (ConstructorDeclaration) cbd;
+          System.err.println("      Constructor: " + cd.toString());
         }
       }
     }

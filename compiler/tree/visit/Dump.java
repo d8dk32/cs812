@@ -381,5 +381,16 @@ public final class Dump extends TreeVisitorBase<Void>
     return null;
   }
 
+  @Override public Void visit(final ConstructorDeclaration cd)
+  {
+    emit("Constructor Declaration: " + cd.toString());
+    indentation += increment;
+    emit("Constructor Body: ");
+    visitEach(cd.getBody());
+    indentation -= increment;
+
+    return null;
+  }
+
 }
 

@@ -121,6 +121,8 @@ classBodyDeclaration
     { $lval = $fd.lval; }
   | md=methodDeclaration
     { $lval = $md.lval; }
+  | cd=constructorDeclaration
+    { $lval = $cd.lval; }
   | SEMICOLON
     { $lval = null; }
   ;
@@ -156,26 +158,26 @@ methodDeclarator
 constructorDeclaration
   returns [ ConstructorDeclaration lval ]
   : i=identifier fp=formalParameters cb=constructorBody
-    { $lval = buildConstructorDeclaration(loc($start),$i.lval.getName(), $fp.lval, $cd.lval); }
+    { $lval = buildConstructorDeclaration(loc($start),$i.lval.getName(), $fp.lval, $cb.lval); }
   ;
 
 constructorBody
   returns [ List<Statement> lval ]
-  : LBRACK ci=constructorInvocation bs=blockStatements RBRACK
+  /*: LBRACK ci=constructorInvocation bs=blockStatements RBRACK
     { $lval = new ArrayList<Statement>(); $lval.add($ci.lval); $lval.addAll($bs.lval); }
   | LBRACK ci=constructorInvocation RBRACK
-    { $lval = new ArrayList<Statement>(); $lval.add($ci.lval); }
-  | b=block
+    { $lval = new ArrayList<Statement>(); $lval.add($ci.lval); }*/
+  : b=block
     { $lval = $b.lval.getStatementList(); }
   ;
 
-constructorInvocation
+/*constructorInvocation
   returns [ ConstructorInvocation lval ]
   : THIS a=arguments SEMICOLON
     { $lval = buildConstructorInvocation(loc($start), false, $a.lval); }
   | SUPER a=arguments SEMICOLON
     { $lval = buildConstructorInvocation(loc($start), true, $a.lval); }
-  ;
+  ;*/
 
 formalParameters
   returns [ ArrayList<NameTypeDepth> lval ]

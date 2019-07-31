@@ -289,4 +289,10 @@ public final class TreeBuilder
      return new MethodDeclaration(loc, type, typeDims, name, params, body);
    }
 
+   /* build new constructor declaration instance */
+   public static ConstructorDeclaration buildConstructorDeclaration(final Location loc, String type, List<NameTypeDepth> params, List<Statement> body)
+   {
+     return new ConstructorDeclaration(loc, type, params, body);
+   }
+
 }

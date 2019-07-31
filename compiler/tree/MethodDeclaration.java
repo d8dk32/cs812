@@ -67,6 +67,11 @@ public class MethodDeclaration extends ClassBodyDeclaration
     return this.body;
   }
 
+  public String getName()
+  {
+    return this.name;
+  }
+
   /** Apply a visitor to the node.
   *
   *  @param visitor the visitor to apply.

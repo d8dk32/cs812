@@ -199,5 +199,10 @@ public class TreeVisitorBase<T> implements TreeVisitor<T>
     return null;
   }
 
+  /** visit a ConstrucotrDeclaration. Override to provide specific behavior */
+  @Override public T visit(final ConstructorDeclaration cd)
+  {
+    return null;
+  }
 }
 
