@@ -64,6 +64,21 @@ public class ConstructorDeclaration extends ClassBodyDeclaration
     return retval;
   }
 
+  public String getEncodedName()
+  {
+    String encName = "@";
+    encName += this.className + "$";
+    encName += "constructor$";
+    for(NameTypeDepth ntd : this.params)
+    {
+      encName += ntd.getType();
+      if(ntd.getDepth() > 0)
+        encName += "arr";
+      encName += "$";
+    }
+    return encName;
+  }
+
   /** Apply a visitor to the node.
   *
   *  @param visitor the visitor to apply.

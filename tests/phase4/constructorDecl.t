@@ -8,6 +8,6 @@ int main() {
 }
 
 class B extends A {
-  B() {}
+  B(int a, A c) {out 42;}
 }
 

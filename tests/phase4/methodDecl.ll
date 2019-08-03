@@ -1,6 +1,6 @@
 ; source file: methodDecl.t
 ; T version: 1.0
-; compiled: Tue Jul 30 13:52:18 EDT 2019
+; compiled: Fri Aug 02 21:50:05 EDT 2019
 
 ; declarations for the runtime support functions
 declare void @t_rt_alloc_init()
@@ -26,8 +26,8 @@ declare void @t_rt_runtime_cast_check(i32, i8*, i8*)
 %array$int = type { i8*, i8*, i32, i32, [0 x i32] }
 %array$ref = type { i8*, i8*, i32, i32, [0 x i8*] }
 ; class object types
-%class$A =  type { i8* }
-%class$B =  type { i8* }
+%class$A =  type { i8*, i32 }
+%class$B =  type { i8*, i32, i32 }
 %class$Object =  type { i8* }
 
 ; main block

@@ -7,6 +7,7 @@ import tc.compiler.tree.*;
 import tc.compiler.tree.type.*;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Stack;
 import tc.compiler.parse.TreeBuilder;
 
 /**
@@ -581,6 +582,24 @@ public final class Analyze extends TreeVisitorBase<Tree>
     ClassType cdType = ClassType.getInstance(cd.getClassName());
     //visit each ClassBodyDeclaratuion. If it's a Field, add it to this thing's ClassType's list of fields
     //remember to start from the end of the list so that you add the base type's fields before the supertype's
+
+    // TODO remove logging crap
+    for(FieldDeclaration f : cdType.getFieldDecls(true))
+    {
+      Message.log("field delc " + f.getType());
+    }
+
+    for(MethodDeclaration f : cdType.getMethodDecls(true))
+    {
+      Message.log("metjhod decl " + f.getName());
+    }
+
+    for(ConstructorDeclaration f : cdType.getConstructorDecls(false))
+    {
+      Message.log("constr decl " + f.getClassName());
+    }
+    //////////////////////end logging crap////////////////////////////////////
+
     List<ClassBodyDeclaration> cbdList = cdType.getClassBodyDecls(true);
     for(int i = 0; i < cbdList.size(); i++) //for each class body declaration
     {
@@ -605,13 +624,14 @@ public final class Analyze extends TreeVisitorBase<Tree>
         MethodDeclaration md = (MethodDeclaration) cbd;
         visitNode(md); //visit methodDeclaration node
         cdType.addToMethods(md.getMethod());
+        md.getMethod().setContainingClass(cdType);
       }
       else if (cbd instanceof ConstructorDeclaration)
       {
         // TODO
         //if it's a constructor...
         ConstructorDeclaration cdecl = (ConstructorDeclaration) cbd;
-        visitNode(cdecl); //visit methodDeclaration node
+        visitNode(cdecl); //visit constructorDeclaration node
         
         //slightly hacky:
         //make sure the constructor matches its enclosing class, but ignore it if it's an "inherited" constructor
@@ -628,7 +648,7 @@ public final class Analyze extends TreeVisitorBase<Tree>
       }
 
     }
-    
+
     return cd;
   }
 
@@ -688,6 +708,24 @@ public final class Analyze extends TreeVisitorBase<Tree>
     //handle constructor args at some point
     //
     return cice;
+  }
+
+  @Override public Tree visit(final ConstructorDeclaration cd)
+  {
+    //make sure the param types are all valid,
+    //and then visit the body node
+
+    for(NameTypeDepth ntd : cd.getParams())
+    {
+      if(ntd.getType() != "int" && !ClassType.getInstance(ntd.getType()).wasDeclared())
+      {
+        Message.error(cd.getLoc(), "Undeclared class type " + ntd.getType());
+      }    
+    }
+
+    visitEach(cd.getBody());
+
+    return cd;
   }
 }
 

@@ -79,5 +79,20 @@ public final class Method extends Type
     return this.containingClass;
   }
 
+  public String getEncodedName()
+  {
+    String encName = "@";
+    encName += this.containingClass.getName() + "$";
+    encName += this.methodName + "$";
+    for(NameTypeDepth ntd : this.paramList)
+    {
+      encName += ntd.getType();
+      if(ntd.getDepth() > 0)
+        encName += "arr";
+      encName += "$";
+    }
+    return encName;
+  }
+
 }
 

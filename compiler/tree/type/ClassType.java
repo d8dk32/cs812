@@ -25,8 +25,11 @@ public final class ClassType extends ReferenceType
   // was this class type declared?
   private boolean wasDeclared;
 
-  //list of class declarations
+  //list of class member declarations
   private List<ClassBodyDeclaration> classBodyDecls = new ArrayList<>();
+  private List<FieldDeclaration> fieldDeclarations = new ArrayList<>();
+  private List<MethodDeclaration> methodDeclarations = new ArrayList<>();
+  private List<ConstructorDeclaration> constructorDeclarations = new ArrayList<>();
 
   //list of Fields. will be added in type->supertype order, i.e. reverse order of what
   //getClassBodyDecls() returns
@@ -118,6 +121,74 @@ public final class ClassType extends ReferenceType
   
     superDecls.addAll(this.classBodyDecls);
     return superDecls;
+  }
+
+  //get list of field declarations
+  public List<FieldDeclaration> getFieldDecls(boolean includeSupers)
+  {
+    if(!includeSupers)
+    {
+      return this.fieldDeclarations;
+    }
+
+    //make sure to return the super class(es) body decls too
+    List<FieldDeclaration> superDecls = new ArrayList<FieldDeclaration>();
+    if(this.superClass != null)
+    {
+      superDecls = superClass.getFieldDecls(true);
+    }
+  
+    superDecls.addAll(this.fieldDeclarations);
+    return superDecls;
+  }
+
+  //get list of method declarations
+  public List<MethodDeclaration> getMethodDecls(boolean includeSupers)
+  {
+    if(!includeSupers)
+    {
+      return this.methodDeclarations;
+    }
+
+    //make sure to return the super class(es) body decls too
+    List<MethodDeclaration> superDecls = new ArrayList<MethodDeclaration>();
+    if(this.superClass != null)
+    {
+      superDecls = superClass.getMethodDecls(true);
+    }
+  
+    superDecls.addAll(this.methodDeclarations);
+    return superDecls;
+  }
+
+  //get list of constructor declarations
+  public List<ConstructorDeclaration> getConstructorDecls(boolean includeSupers)
+  {
+    if(!includeSupers)
+    {
+      return this.constructorDeclarations;
+    }
+
+    //make sure to return the super class(es) body decls too
+    List<ConstructorDeclaration> superDecls = new ArrayList<ConstructorDeclaration>();
+    if(this.superClass != null)
+    {
+      superDecls = superClass.getConstructorDecls(true);
+    }
+  
+    superDecls.addAll(this.constructorDeclarations);
+    return superDecls;
+  }
+
+  //utility methods to add class memeber declarations to their respective lists
+  public void addClassMemberDeclaration(ClassBodyDeclaration cbd)
+  {
+    if (cbd instanceof FieldDeclaration)
+      this.fieldDeclarations.add((FieldDeclaration) cbd);
+    else if (cbd instanceof MethodDeclaration)
+      this.methodDeclarations.add((MethodDeclaration) cbd);
+    else if (cbd instanceof ConstructorDeclaration)
+      this.constructorDeclarations.add((ConstructorDeclaration) cbd);
   }
 
   public List<NameTypeDepth> getFields()

@@ -48,6 +48,13 @@ public final class NameTypeDepth
         return ntdString;
     }
 
+    //gets just a type-depth pair from this NameTypeDepth, for interfacing with 
+    //the original implmentation of the Symbol Table
+    public TypeDepthPair getTypeDepthPair()
+    {
+        return new TypeDepthPair(toType(), this.depth);
+    }
+
     //Returns a real Type represented by this NameTypeDepth
     public Type toType()
     {

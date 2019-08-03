@@ -6,6 +6,8 @@
 CompilationUnit
 [classes]
   Class A extends Object
+    Declaration: int
+      Identifier a
     Method Declaration: int meth1()
       Method Body: 
       Start Block -> 
@@ -25,7 +27,9 @@ CompilationUnit
           IntegerLiteral (int) 3
       End Block <- 
   Class B extends A
-    Method Declaration: A meth4()
+    Declaration: int
+      Identifier b
+    Method Declaration: A meth4(int a, int[] b, A c, )
       Method Body: 
       Start Block -> 
         OutputStatement

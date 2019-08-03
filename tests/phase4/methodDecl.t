@@ -1,5 +1,6 @@
 
 class A {
+  int a;
   int meth1() { out 1; }
   int meth2() { out 2; }
   int meth3() { out 3; }
@@ -10,7 +11,8 @@ int main() {
 }
 
 class B extends A {
-  A meth4() { out 4; }
+  int b;
+  A meth4(int a, int[] b, A c) { out 4; }
   B meth5() { out 5; }
 }
 

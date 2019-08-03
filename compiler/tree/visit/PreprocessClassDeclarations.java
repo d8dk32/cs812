@@ -29,16 +29,23 @@ public final class PreprocessClassDeclarations extends TreeVisitorBase<Void>
   /** Process a class declaration. */
   @Override public Void visit(ClassDeclaration classDeclaration)
   {
-    ClassType type = ClassType.getInstance(classDeclaration.getClassName());
+    ClassType cdType = ClassType.getInstance(classDeclaration.getClassName());
     ClassType superClass = ClassType.getInstance(classDeclaration.getSuperClassName());
     
-    if(type.wasDeclared())
+    if(cdType.wasDeclared())
     {
       Message.error(classDeclaration.getLoc(), "Duplicate class declaration " + classDeclaration.getClassName());
     }
-    type.setWasDeclared();
-    type.setSuperClass(superClass);
-    type.setClassBodyDecls(classDeclaration.getClassBody());
+    cdType.setWasDeclared();
+    cdType.setSuperClass(superClass);
+    cdType.setClassBodyDecls(classDeclaration.getClassBody());
+
+    //add the class member declarations from the class body to their respective lists in the classtype
+    for(ClassBodyDeclaration cbd : cdType.getClassBodyDecls(false))
+    {
+      //this method "sorts" the fields/methods/constructors into their respectve lists
+      cdType.addClassMemberDeclaration(cbd);
+    }
 
     return null;
   }
