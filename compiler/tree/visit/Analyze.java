@@ -583,70 +583,39 @@ public final class Analyze extends TreeVisitorBase<Tree>
     //visit each ClassBodyDeclaratuion. If it's a Field, add it to this thing's ClassType's list of fields
     //remember to start from the end of the list so that you add the base type's fields before the supertype's
 
-    // TODO remove logging crap
-    for(FieldDeclaration f : cdType.getFieldDecls(true))
+    // for each field declaration
+    for(FieldDeclaration fd : cdType.getFieldDecls(true))
     {
-      Message.log("field delc " + f.getType());
+      visitNode(fd); //visit the field declaration node
+      List<Identifier> fdIds = fd.getDeclarations();
+      List<Integer> fdDims = fd.getDimensionList();
+      for(int j = 0; j < fdIds.size(); j++) //then for each variable declared on this declaration node
+      {
+        //add it to the list of Name/type/Depth tuples maintained by the ClassType
+        NameTypeDepth ntd = new NameTypeDepth(fdIds.get(j).getName(), fd.getType(), fdDims.get(j));
+        cdType.addToFields(ntd);
+      }
+    }
+    //for each method declaration
+    for(MethodDeclaration md : cdType.getMethodDecls(true))
+    {
+      visitNode(md); //visit methodDeclaration node
+      cdType.addToMethods(md.getMethod());
+      md.getMethod().setContainingClass(cdType);
     }
 
-    for(MethodDeclaration f : cdType.getMethodDecls(true))
+    //for each constructor declaration (cosntructors can't be inherited so we don't want the supers)
+    for(ConstructorDeclaration cdecl : cdType.getConstructorDecls(false))
     {
-      Message.log("metjhod decl " + f.getName());
-    }
-
-    for(ConstructorDeclaration f : cdType.getConstructorDecls(false))
-    {
-      Message.log("constr decl " + f.getClassName());
-    }
-    //////////////////////end logging crap////////////////////////////////////
-
-    List<ClassBodyDeclaration> cbdList = cdType.getClassBodyDecls(true);
-    for(int i = 0; i < cbdList.size(); i++) //for each class body declaration
-    {
-      ClassBodyDeclaration cbd = cbdList.get(i);
-      if(cbd instanceof FieldDeclaration)
+      visitNode(cdecl); //visit constructorDeclaration node
+    
+      //make sure the constructor matches its enclosing class
+      if (cdecl.getClassType() != cdType)
       {
-        // if it's a field...
-        FieldDeclaration fd = (FieldDeclaration) cbd;
-        visitNode(fd); //visit the field declaration node
-        List<Identifier> fdIds = fd.getDeclarations();
-        List<Integer> fdDims = fd.getDimensionList();
-        for(int j = 0; j < fdIds.size(); j++) //then for each variable declared on this declaration node
-        {
-          //add it to the list of Name/type/Depth tuples maintained by the ClassType
-          NameTypeDepth ntd = new NameTypeDepth(fdIds.get(j).getName(), fd.getType(), fdDims.get(j));
-          cdType.addToFields(ntd);
-        }
-      }
-      else if (cbd instanceof MethodDeclaration)
-      {
-        //if it's a method...
-        MethodDeclaration md = (MethodDeclaration) cbd;
-        visitNode(md); //visit methodDeclaration node
-        cdType.addToMethods(md.getMethod());
-        md.getMethod().setContainingClass(cdType);
-      }
-      else if (cbd instanceof ConstructorDeclaration)
-      {
-        // TODO
-        //if it's a constructor...
-        ConstructorDeclaration cdecl = (ConstructorDeclaration) cbd;
-        visitNode(cdecl); //visit constructorDeclaration node
-        
-        //slightly hacky:
-        //make sure the constructor matches its enclosing class, but ignore it if it's an "inherited" constructor
-        if (cdecl.getClassType() != cdType && !cdType.isSubclassOf(cdecl.getClassType()))
-        {
-          Message.error(cdecl.getLoc(), "Constructor type " + cdecl.getClassName() + " doesn't match class " + cdType.getName());
-        }
-
-        //constructors can't actually be inherited though so ignore it unless it actually matches its enclosing class
-        if(cdecl.getClassType() == cdType)
-        {
-          cdType.addToConstructors(cdecl);
-        }
+        Message.error(cdecl.getLoc(), "Constructor type " + cdecl.getClassName() + " doesn't match class " + cdType.getName());
       }
 
+      cdType.addToConstructors(cdecl); 
     }
 
     return cd;
