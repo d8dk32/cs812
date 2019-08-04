@@ -24,7 +24,7 @@ import tc.compiler.parse.TreeBuilder;
 public final class Analyze extends TreeVisitorBase<Tree>
 {
 
-  HashMap<String, TypeDepthPair> symbolTable = new HashMap<>(); 
+  Scope symbolTable = new Scope(); 
   int whileDepth = 0;
   /** Create an AST semantic analyzer.
    *
@@ -107,8 +107,11 @@ public final class Analyze extends TreeVisitorBase<Tree>
     }    
 
     visitEach(compilationUnit.getClasses());
-    visitEach(compilationUnit.getMainBlock());
 
+    //push the main block scope on the scope stack before visiting the main block statements
+    symbolTable.push();
+    visitEach(compilationUnit.getMainBlock());
+    symbolTable.pop();
     return compilationUnit;
   }
 
@@ -579,6 +582,7 @@ public final class Analyze extends TreeVisitorBase<Tree>
 
   @Override public Tree visit(final ClassDeclaration cd)
   {
+    symbolTable.push();
     ClassType cdType = ClassType.getInstance(cd.getClassName());
     //visit each ClassBodyDeclaratuion. If it's a Field, add it to this thing's ClassType's list of fields
     //remember to start from the end of the list so that you add the base type's fields before the supertype's
@@ -596,28 +600,31 @@ public final class Analyze extends TreeVisitorBase<Tree>
         cdType.addToFields(ntd);
       }
     }
+    symbolTable.putAll(cdType.getFields());
+
+
     //for each method declaration
     for(MethodDeclaration md : cdType.getMethodDecls(true))
     {
-      visitNode(md); //visit methodDeclaration node
       cdType.addToMethods(md.getMethod());
       md.getMethod().setContainingClass(cdType);
+      visitNode(md); //visit methodDeclaration node
+      
     }
 
     //for each constructor declaration (cosntructors can't be inherited so we don't want the supers)
     for(ConstructorDeclaration cdecl : cdType.getConstructorDecls(false))
     {
+      cdType.addToConstructors(cdecl); 
       visitNode(cdecl); //visit constructorDeclaration node
-    
       //make sure the constructor matches its enclosing class
       if (cdecl.getClassType() != cdType)
       {
         Message.error(cdecl.getLoc(), "Constructor type " + cdecl.getClassName() + " doesn't match class " + cdType.getName());
       }
-
-      cdType.addToConstructors(cdecl); 
     }
 
+    symbolTable.pop();
     return cd;
   }
 
@@ -640,6 +647,7 @@ public final class Analyze extends TreeVisitorBase<Tree>
 
   @Override public Tree visit(final MethodDeclaration md)
   {
+    symbolTable.push();
     //not entirely sure what needs to happen here. I guess make sure the return type and param types are all valid,
     //and then visit the body node
     if(md.getType() != "int" && !ClassType.getInstance(md.getType()).wasDeclared())
@@ -654,9 +662,9 @@ public final class Analyze extends TreeVisitorBase<Tree>
         Message.error(md.getLoc(), "Undeclared class type " + ntd.getType());
       }    
     }
-
+    symbolTable.putAll(md.getParams());
     visitNode(md.getBody());
-
+    symbolTable.pop();
     return md;
   }
 
@@ -683,7 +691,7 @@ public final class Analyze extends TreeVisitorBase<Tree>
   {
     //make sure the param types are all valid,
     //and then visit the body node
-
+    symbolTable.push();
     for(NameTypeDepth ntd : cd.getParams())
     {
       if(ntd.getType() != "int" && !ClassType.getInstance(ntd.getType()).wasDeclared())
@@ -691,9 +699,9 @@ public final class Analyze extends TreeVisitorBase<Tree>
         Message.error(cd.getLoc(), "Undeclared class type " + ntd.getType());
       }    
     }
-
+    symbolTable.putAll(cd.getParams());
     visitEach(cd.getBody());
-
+    symbolTable.pop();
     return cd;
   }
 }
