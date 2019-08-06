@@ -204,5 +204,17 @@ public class TreeVisitorBase<T> implements TreeVisitor<T>
   {
     return null;
   }
+
+  /** visit a ConstructorINvocation. Override to provide specific behavior */
+  @Override public T visit(final ConstructorInvocation ci)
+  {
+    return null;
+  }
+
+  /** visit a MethodINvocation. Override to provide specific behavior */
+  @Override public T visit(final MethodInvocation mi)
+  {
+    return null;
+  }
 }
 

@@ -58,5 +58,9 @@ public interface TreeVisitor<T>
 
   T visit(ConstructorDeclaration cd);
 
+  T visit(MethodInvocation mi);
+
+  T visit(ConstructorInvocation ci);
+
 }
 

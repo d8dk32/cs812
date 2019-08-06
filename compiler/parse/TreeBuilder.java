@@ -295,4 +295,15 @@ public final class TreeBuilder
      return new ConstructorDeclaration(loc, type, params, body);
    }
 
+   /*build a new method invocation ndoe*/
+   public static MethodInvocation buildMethodInvocation(final Location loc, boolean isSuper, Expression primary, Identifier methodName, List<Expression> args)
+   {
+     return new MethodInvocation(loc, isSuper, primary, methodName, args);
+   }
+
+   /*build new constructor invocation*/
+   public static ConstructorInvocation buildConstructorInvocation(final Location loc, boolean isSuper, List<Expression> args)
+   {
+     return new ConstructorInvocation(loc, isSuper, args);
+   }
 }

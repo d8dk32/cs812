@@ -171,13 +171,13 @@ constructorBody
     { $lval = $b.lval.getStatementList(); }
   ;
 
-/*constructorInvocation
+constructorInvocation
   returns [ ConstructorInvocation lval ]
   : THIS a=arguments SEMICOLON
     { $lval = buildConstructorInvocation(loc($start), false, $a.lval); }
   | SUPER a=arguments SEMICOLON
     { $lval = buildConstructorInvocation(loc($start), true, $a.lval); }
-  ;*/
+  ;
 
 formalParameters
   returns [ ArrayList<NameTypeDepth> lval ]
@@ -420,6 +420,8 @@ primaryNoNewArray
     { $lval = $pe.lval; }
   | fa=fieldAccess
     { $lval = $fa.lval; }
+  | mi=methodInvocation
+    { $lval = $mi.lval; }
   | aa=arrayAccess
     { $lval = $aa.lval; }
   | cice=classInstanceCreationExpression
@@ -432,6 +434,16 @@ parenExpression
   returns [ Expression lval ]
   : LPAREN e=expression RPAREN
     { $lval = $e.lval; }
+  ;
+
+methodInvocation
+  returns [ MethodInvocation lval ]
+  : i=identifier a=arguments
+    { $lval = buildMethodInvocation(loc($start), false, null, $i.lval, $a.lval); }
+  | p=primary DOT i=identifier a=arguments
+    { $lval = buildMethodInvocation(loc($start), false, $p.lval, $i.lval, $a.lval); }
+  | SUPER DOT i=identifier a=arguments
+    { $lval = buildMethodInvocation(loc($start), true, null, $i.lval, $a.lval); }
   ;
 
 literal
