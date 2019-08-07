@@ -392,5 +392,34 @@ public final class Dump extends TreeVisitorBase<Void>
     return null;
   }
 
+  @Override public Void visit(final MethodInvocation mi)
+  {
+    String isSuper = mi.isSuper() ? "super." : "";
+    emit("Method Invocation: "+ isSuper + mi.getMethodName());
+    indentation += increment;
+    if(mi.getPrimary() != null)
+    {
+      emit("on object: ");
+      visitNode(mi.getPrimary());
+    }
+    emit("with args: ");
+    visitEach(mi.getArgs());
+    indentation -= increment;
+
+    return null;
+  }
+
+  @Override public Void visit(final ConstructorInvocation ci)
+  {
+    String isSuper = ci.isSuper() ? "super" : "this";
+    emit("Constructor Invocation: "+ isSuper);
+    indentation += increment;
+    emit("with args: ");
+    visitEach(ci.getArgs());
+    indentation -= increment;
+
+    return null;
+  }
+
 }
 

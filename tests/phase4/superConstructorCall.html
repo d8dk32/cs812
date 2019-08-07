@@ -1,0 +1,42 @@
+<head>
+<title> AST for superConstructorCall.t</title>
+</head>
+<body>
+<pre>
+CompilationUnit
+[classes]
+  Class A extends Object
+    Constructor Declaration: A( int i, int j, )
+      Constructor Body: 
+      ExpressionStatement: 
+        Assignment: 
+          Identifier a2
+          ADD (int) 
+          Identifier i
+          Identifier j
+    Declaration: int
+      Identifier a2
+  Class B extends A
+    Constructor Declaration: B( int i, )
+      Constructor Body: 
+      Constructor Invocation: super
+        with args: 
+        Identifier i
+        ADD (null) 
+        Identifier i
+        IntegerLiteral (int) 5
+[main block]
+  Declaration: B
+    Identifier b
+  ExpressionStatement: 
+    Assignment: 
+      Identifier b
+      Class instantiation: class B
+        Args: 
+        IntegerLiteral (int) 13
+  OutputStatement
+    Field Access: 
+      Identifier b
+      .
+      Identifier a2
+</pre>

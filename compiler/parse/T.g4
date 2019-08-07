@@ -163,11 +163,11 @@ constructorDeclaration
 
 constructorBody
   returns [ List<Statement> lval ]
-  /*: LBRACK ci=constructorInvocation bs=blockStatements RBRACK
+  : LBRACK ci=constructorInvocation bs=blockStatements RBRACK
     { $lval = new ArrayList<Statement>(); $lval.add($ci.lval); $lval.addAll($bs.lval); }
   | LBRACK ci=constructorInvocation RBRACK
-    { $lval = new ArrayList<Statement>(); $lval.add($ci.lval); }*/
-  : b=block
+    { $lval = new ArrayList<Statement>(); $lval.add($ci.lval); }
+  | b=block
     { $lval = $b.lval.getStatementList(); }
   ;
 
@@ -420,30 +420,26 @@ primaryNoNewArray
     { $lval = $pe.lval; }
   | fa=fieldAccess
     { $lval = $fa.lval; }
-  | mi=methodInvocation
-    { $lval = $mi.lval; }
+  | i=identifier a=arguments
+    { $lval = buildMethodInvocation(loc($start), false, null, $i.lval, $a.lval); }
+  | p=primaryNoNewArray DOT i=identifier a=arguments
+    { $lval = buildMethodInvocation(loc($start), false, $p.lval, $i.lval, $a.lval); }
+  | SUPER DOT i=identifier a=arguments
+    { $lval = buildMethodInvocation(loc($start), true, null, $i.lval, $a.lval); }
   | aa=arrayAccess
     { $lval = $aa.lval; }
   | cice=classInstanceCreationExpression
     { $lval = $cice.lval; }
   | l=literal
     { $lval = $l.lval; }
+  | i=identifier
+    { $lval = $i.lval; }
   ;
 
 parenExpression
   returns [ Expression lval ]
   : LPAREN e=expression RPAREN
     { $lval = $e.lval; }
-  ;
-
-methodInvocation
-  returns [ MethodInvocation lval ]
-  : i=identifier a=arguments
-    { $lval = buildMethodInvocation(loc($start), false, null, $i.lval, $a.lval); }
-  | p=primary DOT i=identifier a=arguments
-    { $lval = buildMethodInvocation(loc($start), false, $p.lval, $i.lval, $a.lval); }
-  | SUPER DOT i=identifier a=arguments
-    { $lval = buildMethodInvocation(loc($start), true, null, $i.lval, $a.lval); }
   ;
 
 literal

@@ -1,0 +1,22 @@
+<head>
+<title> AST for constructorCall2.t</title>
+</head>
+<body>
+<pre>
+CompilationUnit
+[classes]
+  Class A extends Object
+    Constructor Declaration: A( int i, )
+      Constructor Body: 
+      OutputStatement
+        Identifier i
+[main block]
+  Declaration: A
+    Identifier a
+  ExpressionStatement: 
+    Assignment: 
+      Identifier a
+      Class instantiation: class A
+        Args: 
+        IntegerLiteral (int) 42
+</pre>

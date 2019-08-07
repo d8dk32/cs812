@@ -1,0 +1,110 @@
+<head>
+<title> AST for methodCall.t</title>
+</head>
+<body>
+<pre>
+CompilationUnit
+[classes]
+  Class A extends Object
+    Method Declaration: int meth1()
+      Method Body: 
+      Start Block -> 
+        OutputStatement
+          IntegerLiteral (int) 1
+      End Block <- 
+    Method Declaration: int meth2()
+      Method Body: 
+      Start Block -> 
+        OutputStatement
+          IntegerLiteral (int) 2
+      End Block <- 
+    Method Declaration: int meth3()
+      Method Body: 
+      Start Block -> 
+        OutputStatement
+          IntegerLiteral (int) 3
+      End Block <- 
+  Class B extends A
+    Method Declaration: int meth2()
+      Method Body: 
+      Start Block -> 
+        OutputStatement
+          IntegerLiteral (int) 22
+      End Block <- 
+    Method Declaration: int meth4()
+      Method Body: 
+      Start Block -> 
+        OutputStatement
+          IntegerLiteral (int) 44
+      End Block <- 
+[main block]
+  Declaration: A
+    Identifier a
+  ExpressionStatement: 
+    Assignment: 
+      Identifier a
+      Class instantiation: class A
+  ExpressionStatement: 
+    Method Invocation: meth1
+      on object: 
+      Identifier a
+      with args: 
+  ExpressionStatement: 
+    Method Invocation: meth2
+      on object: 
+      Identifier a
+      with args: 
+  ExpressionStatement: 
+    Method Invocation: meth3
+      on object: 
+      Identifier a
+      with args: 
+  ExpressionStatement: 
+    Assignment: 
+      Identifier a
+      Cast:
+        Class instantiation: class B
+        to
+        Identifier A
+  ExpressionStatement: 
+    Method Invocation: meth1
+      on object: 
+      Identifier a
+      with args: 
+  ExpressionStatement: 
+    Method Invocation: meth2
+      on object: 
+      Identifier a
+      with args: 
+  ExpressionStatement: 
+    Method Invocation: meth3
+      on object: 
+      Identifier a
+      with args: 
+  Declaration: B
+    Identifier b
+  ExpressionStatement: 
+    Assignment: 
+      Identifier b
+      Class instantiation: class B
+  ExpressionStatement: 
+    Method Invocation: meth1
+      on object: 
+      Identifier b
+      with args: 
+  ExpressionStatement: 
+    Method Invocation: meth2
+      on object: 
+      Identifier b
+      with args: 
+  ExpressionStatement: 
+    Method Invocation: meth3
+      on object: 
+      Identifier b
+      with args: 
+  ExpressionStatement: 
+    Method Invocation: meth4
+      on object: 
+      Identifier b
+      with args: 
+</pre>

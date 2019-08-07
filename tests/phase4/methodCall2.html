@@ -1,0 +1,31 @@
+<head>
+<title> AST for methodCall2.t</title>
+</head>
+<body>
+<pre>
+CompilationUnit
+[classes]
+  Class A extends Object
+    Method Declaration: int meth1(int a, int b, )
+      Method Body: 
+      Start Block -> 
+        OutputStatement
+          ADD (int) 
+          Identifier a
+          Identifier b
+      End Block <- 
+[main block]
+  Declaration: A
+    Identifier a
+  ExpressionStatement: 
+    Assignment: 
+      Identifier a
+      Class instantiation: class A
+  ExpressionStatement: 
+    Method Invocation: meth1
+      on object: 
+      Identifier a
+      with args: 
+      IntegerLiteral (int) 20
+      IntegerLiteral (int) 22
+</pre>

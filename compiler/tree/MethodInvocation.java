@@ -13,7 +13,7 @@ public final class MethodInvocation extends Expression
 {
     private Expression primary;
     private boolean isSuper;
-    private Identifier methodName;
+    private String methodName;
     private List<Expression> args;
     private ClassType classType = null;
 
@@ -22,7 +22,7 @@ public final class MethodInvocation extends Expression
         super(loc);
         this.primary = primary;
         this.isSuper = isSuper;
-        this.methodName = methodName;
+        this.methodName = methodName.getName();
         this.args = args;
     }
 
@@ -31,7 +31,7 @@ public final class MethodInvocation extends Expression
         return this.primary;
     }
 
-    public Identifier getMethodName()
+    public String getMethodName()
     {
         return this.methodName;
     }
