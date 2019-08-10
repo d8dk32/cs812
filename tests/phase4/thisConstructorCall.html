@@ -1,11 +1,19 @@
 <head>
-<title> AST for superConstructorCall.t</title>
+<title> AST for thisConstructorCall.t</title>
 </head>
 <body>
 <pre>
 CompilationUnit
 [classes]
   Class A extends Object
+    Constructor Declaration: A( int i, )
+      Constructor Body: 
+      Constructor Invocation: this
+        with args: 
+        Identifier i
+        ADD (int) 
+        Identifier i
+        IntegerLiteral (int) 5
     Constructor Declaration: A( int i, int j, )
       Constructor Body: 
       ExpressionStatement: 
@@ -16,27 +24,18 @@ CompilationUnit
           Identifier j
     Declaration: int
       Identifier a2
-  Class B extends A
-    Constructor Declaration: B( int i, )
-      Constructor Body: 
-      Constructor Invocation: super
-        with args: 
-        Identifier i
-        ADD (int) 
-        Identifier i
-        IntegerLiteral (int) 5
 [main block]
-  Declaration: B
-    Identifier b
+  Declaration: A
+    Identifier a
   ExpressionStatement: 
     Assignment: 
-      Identifier b
-      Class instantiation: class B
+      Identifier a
+      Class instantiation: class A
         Args: 
         IntegerLiteral (int) 13
   OutputStatement
     Field Access: 
-      Identifier b
+      Identifier a
       .
       Identifier a2
 </pre>

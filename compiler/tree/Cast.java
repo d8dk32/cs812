@@ -1,8 +1,11 @@
 package tc.compiler.tree;
 
+import javax.lang.model.util.ElementScanner6;
+
 import tc.compiler.Location;
 import tc.compiler.tree.visit.TreeVisitor;
 import tc.compiler.tree.type.*;
+import java.util.List;
 
 /**
  * AST Cast node
@@ -37,6 +40,14 @@ public final class Cast extends Expression
         this.parenExpr = pe;
     }
 
+    public Cast(Location loc, Type toType, Expression exprToCast)
+    {
+        super(loc);
+        this.exprToCast = exprToCast;
+        this.setType(toType);
+        this.conversionType = ConversionType.WIDENING;
+    }
+
     public ArrayType getPresetType()
     {
         return this.presetType;
@@ -60,6 +71,51 @@ public final class Cast extends Expression
     public void setConversionType(ConversionType type)
     {
         this.conversionType = type;
+    }
+
+    //this method will be used during method invocation conversion
+    public static ConversionType isMethodInvocationConversionPermitted(Type toType, Type fromType)
+    {
+        if (toType == fromType)
+        {
+            return ConversionType.IDENTITY;
+        }
+        else if (toType instanceof ClassType && fromType instanceof ClassType)
+        {
+            ClassType toCT = (ClassType) toType;
+            ClassType fromCT = (ClassType) fromType;
+            if(toCT.isSubclassOf(fromCT))
+            {
+                return ConversionType.NARROWING;
+            }
+            else if (fromCT.isSubclassOf(toCT))
+            {
+                return ConversionType.WIDENING;
+            }
+            else 
+            {
+                return ConversionType.INVALID;
+            }
+
+        }
+        
+        return ConversionType.INVALID;
+    }
+
+    public static boolean isMethodInvocationConversionPermitted(List<Type> toTypes, List<Type> fromTypes)
+    {
+        if(toTypes.size() != fromTypes.size())
+        {
+            return false;
+        }
+
+        boolean allow = true;
+        for(int i = 0; i < toTypes.size(); i++)
+        {
+            ConversionType isMICP = isMethodInvocationConversionPermitted(toTypes.get(i), fromTypes.get(i));
+            allow = (isMICP == ConversionType.WIDENING || isMICP == ConversionType.IDENTITY);
+        }
+        return allow;
     }
 
      /** Apply a visitor to the node.

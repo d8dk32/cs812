@@ -14,6 +14,7 @@ public final class ConstructorInvocation extends Statement
     private boolean isSuper;
     private List<Expression> args;
     private ClassType classType = null;
+    private ConstructorDeclaration match = null;
 
     public ConstructorInvocation(final Location loc, boolean isSuper, List<Expression> args)
     {
@@ -32,6 +33,11 @@ public final class ConstructorInvocation extends Statement
         return this.args;
     }
 
+    public void setArgs(List<Expression> newArgs)
+    {
+        this.args = newArgs;
+    }
+
     public ClassType getClassType()
     {
         return this.classType;
@@ -40,6 +46,16 @@ public final class ConstructorInvocation extends Statement
     public void setClassType(ClassType ct)
     {
         this.classType = ct;
+    }
+
+    public void setMatch(ConstructorDeclaration cd)
+    {
+        this.match = cd;
+    }
+
+    public ConstructorDeclaration getMatch()
+    {
+        return this.match;
     }
 
     /** Apply a visitor to the node.

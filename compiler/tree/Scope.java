@@ -14,44 +14,45 @@ import java.util.Stack;
 public class Scope
 {
     Stack<HashMap<String, TypeDepthPair>> symbolTable = new Stack<>();
+    Stack<ClassType> classAccess = new Stack<>();
 
     public Scope(){}
 
     //utility methods-----------------------------------------
-    public HashMap<String, TypeDepthPair> pop()
+    public HashMap<String, TypeDepthPair> popScope()
     {
         return symbolTable.pop();
     }
 
-    public HashMap<String, TypeDepthPair> peek()
+    public HashMap<String, TypeDepthPair> peekScope()
     {
         return symbolTable.peek();
     }
     
     //put a new empty synmbol table on the stack 
-    public void push()
+    public void pushScope()
     {
         symbolTable.push(new HashMap<String, TypeDepthPair>());
     }
 
     //adds to the hashtable at the top of the stack (i.e. the most "local" scope)
-    public void put(String s, TypeDepthPair tdp)
+    public void putSymbol(String s, TypeDepthPair tdp)
     {
         symbolTable.peek().put(s, tdp);
     }
 
-    public void putAll(List<NameTypeDepth> ntdList)
+    public void putAllSymbols(List<NameTypeDepth> ntdList)
     {
         for(NameTypeDepth ntd : ntdList)
         {
-            put(ntd.getName(), ntd.getTypeDepthPair());
+            putSymbol(ntd.getName(), ntd.getTypeDepthPair());
         }
     }
 
     //finds the variable by name (basically wraps HashTable.get) if it is in scope. starts at most "local" scope and
     //then widens search towards global scope to support shadowing
     //returns null if not found
-    public TypeDepthPair get(String name)
+    public TypeDepthPair getSymbol(String name)
     {
         for(int i = symbolTable.size()-1; i >= 0; i--)
         {
@@ -64,6 +65,21 @@ public class Scope
         }
         //if it reaches here, the identifier wasn't in scope
         return null;
+    }
+
+    public ClassType popClassAccess() 
+    {
+        return classAccess.pop();
+    }
+
+    public ClassType peekClassAccess()
+    {
+        return classAccess.peek();
+    }
+
+    public void pushClassAccess(ClassType ct)
+    {
+        classAccess.push(ct);
     }
 
 }

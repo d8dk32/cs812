@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
 import tc.compiler.parse.TreeBuilder;
+import java.util.ArrayList;
 
 /**
  * Analyze an AST to determine the semantics of the program. Information
@@ -109,9 +110,9 @@ public final class Analyze extends TreeVisitorBase<Tree>
     visitEach(compilationUnit.getClasses());
 
     //push the main block scope on the scope stack before visiting the main block statements
-    symbolTable.push();
+    symbolTable.pushScope();
     visitEach(compilationUnit.getMainBlock());
-    symbolTable.pop();
+    symbolTable.popScope();
     return compilationUnit;
   }
 
@@ -208,13 +209,13 @@ public final class Analyze extends TreeVisitorBase<Tree>
   //visit variable node
   @Override public Tree visit(final Identifier identifier) {
     //if the identifier has not been defined, bug out.
-    if (symbolTable.get(identifier.getName()) == null)
+    if (symbolTable.getSymbol(identifier.getName()) == null)
     {
       Message.error(identifier.getLoc(), "undefined variable " + identifier.getName());
       identifier.setType(ErrorType.getInstance());
     }
     else{
-      Type type = symbolTable.get(identifier.getName()).getType();
+      Type type = symbolTable.getSymbol(identifier.getName()).getType();
       identifier.setType(type);
     }
     return identifier;
@@ -253,9 +254,9 @@ public final class Analyze extends TreeVisitorBase<Tree>
           varType = ClassType.getInstance(declStatement.getType());
         }
       }
-      if (symbolTable.get(i.getName()) == null)
+      if (symbolTable.getSymbol(i.getName()) == null)
       {
-        symbolTable.put(i.getName(), 
+        symbolTable.putSymbol(i.getName(), 
               new TypeDepthPair(varType, depth)); 
       }
       else
@@ -391,7 +392,7 @@ public final class Analyze extends TreeVisitorBase<Tree>
     int line = aa.getLoc().getLine();
     if(theArray instanceof Identifier)
     {
-      TypeDepthPair idTDP = symbolTable.get(((Identifier) theArray).getName());
+      TypeDepthPair idTDP = symbolTable.getSymbol(((Identifier) theArray).getName());
       aa.setBaseType((ArrayType) idTDP.getType());
       aa.setLayer(idTDP.getDepth());
       if(idTDP.getDepth() < 1)
@@ -582,8 +583,9 @@ public final class Analyze extends TreeVisitorBase<Tree>
 
   @Override public Tree visit(final ClassDeclaration cd)
   {
-    symbolTable.push();
+    symbolTable.pushScope();
     ClassType cdType = ClassType.getInstance(cd.getClassName());
+    symbolTable.pushClassAccess(cdType);
     //visit each ClassBodyDeclaratuion. If it's a Field, add it to this thing's ClassType's list of fields
     //remember to start from the end of the list so that you add the base type's fields before the supertype's
 
@@ -600,31 +602,26 @@ public final class Analyze extends TreeVisitorBase<Tree>
         cdType.addToFields(ntd);
       }
     }
-    symbolTable.putAll(cdType.getFields());
+    symbolTable.putAllSymbols(cdType.getFields());
 
 
     //for each method declaration
     for(MethodDeclaration md : cdType.getMethodDecls(true))
     {
       cdType.addToMethods(md.getMethod());
-      md.getMethod().setContainingClass(cdType);
-      visitNode(md); //visit methodDeclaration node
-      
+      md.getMethod().setContainingClass(cdType);      
     }
+    visitEach(cdType.getMethodDecls(true)); //visit the method decls only after they've been "recognized" by the enclosing class
 
     //for each constructor declaration (cosntructors can't be inherited so we don't want the supers)
     for(ConstructorDeclaration cdecl : cdType.getConstructorDecls(false))
     {
       cdType.addToConstructors(cdecl); 
-      visitNode(cdecl); //visit constructorDeclaration node
-      //make sure the constructor matches its enclosing class
-      if (cdecl.getClassType() != cdType)
-      {
-        Message.error(cdecl.getLoc(), "Constructor type " + cdecl.getClassName() + " doesn't match class " + cdType.getName());
-      }
     }
+    visitEach(cdType.getConstructorDecls(false)); //visit the constructor decls only after they've been "recognized" by the enclosing class
 
-    symbolTable.pop();
+    symbolTable.popScope();
+    symbolTable.popClassAccess();
     return cd;
   }
 
@@ -647,7 +644,7 @@ public final class Analyze extends TreeVisitorBase<Tree>
 
   @Override public Tree visit(final MethodDeclaration md)
   {
-    symbolTable.push();
+    symbolTable.pushScope();
     //not entirely sure what needs to happen here. I guess make sure the return type and param types are all valid,
     //and then visit the body node
     if(md.getType() != "int" && !ClassType.getInstance(md.getType()).wasDeclared())
@@ -662,9 +659,9 @@ public final class Analyze extends TreeVisitorBase<Tree>
         Message.error(md.getLoc(), "Undeclared class type " + ntd.getType());
       }    
     }
-    symbolTable.putAll(md.getParams());
+    symbolTable.putAllSymbols(md.getParams());
     visitNode(md.getBody());
-    symbolTable.pop();
+    symbolTable.popScope();
     return md;
   }
 
@@ -691,7 +688,12 @@ public final class Analyze extends TreeVisitorBase<Tree>
   {
     //make sure the param types are all valid,
     //and then visit the body node
-    symbolTable.push();
+    //make sure the constructor matches its enclosing class
+    if (cd.getClassType() != symbolTable.peekClassAccess())
+    {
+      Message.error(cd.getLoc(), "Constructor type " + cd.getClassName() + " doesn't match class " + symbolTable.peekClassAccess());
+    }
+    symbolTable.pushScope();
     for(NameTypeDepth ntd : cd.getParams())
     {
       if(ntd.getType() != "int" && !ClassType.getInstance(ntd.getType()).wasDeclared())
@@ -699,10 +701,86 @@ public final class Analyze extends TreeVisitorBase<Tree>
         Message.error(cd.getLoc(), "Undeclared class type " + ntd.getType());
       }    
     }
-    symbolTable.putAll(cd.getParams());
+    symbolTable.putAllSymbols(cd.getParams());
     visitEach(cd.getBody());
-    symbolTable.pop();
+    symbolTable.popScope();
     return cd;
+  }
+
+  @Override public Tree visit(final ConstructorInvocation ci)
+  {
+    //find matching constructor declaration
+    ClassType classInScope = symbolTable.peekClassAccess();
+    if(ci.isSuper())
+    {
+      classInScope = classInScope.getSuperClass();
+    }
+    List<ConstructorDeclaration> cdList = classInScope.getConstructors();
+    List<Expression> argList = ci.getArgs();
+    visitEach(argList); //visit each param expression
+    ArrayList<ConstructorDeclaration> potentialMatches = new ArrayList<>(); //will contain a pared down list of constructors with the right number and types of params
+    ArrayList<ConstructorDeclaration> matches = new ArrayList<>(); //will containa further pared down list of most specific methods. hopefully just 1
+    ArrayList<Type> argTypes = new ArrayList<>();
+    for(Expression e : argList)
+    {
+      argTypes.add(e.getType()); //get all the arg types
+    }
+
+    for(ConstructorDeclaration cd : cdList)
+    {
+      Message.log(cd.getEncodedName());
+      //filter list down to only ones with the right number and type of params
+      if(cd.getParams().size() == argList.size() && Cast.isMethodInvocationConversionPermitted(NameTypeDepth.toTypes(cd.getParams()), argTypes))
+      {
+        potentialMatches.add(cd);
+      }
+    }
+
+    for(ConstructorDeclaration cd : potentialMatches)
+    {
+      boolean isSpecificMatch = true; //assume it is a "most specific" match until proven otherwise
+      for(ConstructorDeclaration other : potentialMatches)
+      {
+        if( Cast.isMethodInvocationConversionPermitted( NameTypeDepth.toTypes( other.getParams() ), 
+                                                        NameTypeDepth.toTypes( cd.getParams() )
+                                                      )
+          )
+        {
+          matches.add(cd);
+        }
+      }
+    }
+
+    //if no matches were found or it is ambiguous
+    if(matches.size() != 1)
+    {
+      Message.error(ci.getLoc(), "No suitable constructor definition found");
+      return ci;
+    }
+
+    //a match was found
+    ConstructorDeclaration match = matches.get(0);
+    Message.log("Matched Constructor: " + match.getEncodedName());
+    ci.setMatch(match);
+    //don't forget to actually slip the Casts in as needed for method invocation conversion
+    List<Expression> castedArgsList = new ArrayList<>();
+    List<Type> matchParamTypes = NameTypeDepth.toTypes(match.getParams());
+    for(int i = 0; i < matchParamTypes.size(); i++)
+    {
+      Type argType = argTypes.get(i);
+      Type paramType = matchParamTypes.get(i);
+      if(Cast.isMethodInvocationConversionPermitted(paramType, argType) == Cast.ConversionType.WIDENING)
+      {
+        castedArgsList.add( new Cast(ci.getLoc(), paramType, ci.getArgs().get(i) ) );
+      }
+      else
+      {
+        castedArgsList.add(ci.getArgs().get(i));
+      }
+    }
+    ci.setArgs(castedArgsList);
+
+    return ci;
   }
 }
 

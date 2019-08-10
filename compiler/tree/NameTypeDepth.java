@@ -1,7 +1,7 @@
 package tc.compiler.tree;
 
-import javax.lang.model.util.ElementScanner6;
-
+import java.util.List;
+import java.util.ArrayList;
 import tc.compiler.tree.type.ClassType;
 import tc.compiler.tree.type.*;
 
@@ -70,6 +70,16 @@ public final class NameTypeDepth
         {
             return ClassType.getInstance(this.type);
         }
+    }
+
+    public static List<Type> toTypes(List<NameTypeDepth> ntdList)
+    {
+        List<Type> retList= new ArrayList<Type>();
+        for(NameTypeDepth ntd : ntdList)
+        {
+            retList.add(ntd.toType());
+        }
+        return retList;
     }
 
 }

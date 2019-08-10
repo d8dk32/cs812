@@ -16,6 +16,7 @@ public class ClassInstanceCreationExpression extends Expression
 
   private String className;
   private List<Expression> args; 
+  private ConstructorDeclaration constructor;
 
 
   /** Construct an array creation expression node. 
@@ -47,6 +48,17 @@ public class ClassInstanceCreationExpression extends Expression
   public List<Expression> getArgs()
   {
     return this.args;
+  }
+
+  //get and set constructor associated with this class isntance creation expr
+  public ConstructorDeclaration getConstructor()
+  {
+    return this.constructor;
+  }
+
+  public void setConstructor(ConstructorDeclaration cd)
+  {
+    this.constructor = cd;
   }
 
    /** Apply a visitor to the node.
