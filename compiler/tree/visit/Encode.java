@@ -13,6 +13,7 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Stack;
 import tc.compiler.tree.Cast.ConversionType;
+import java.lang.StringBuilder;
 
 /**
  * Does a traversal of the AST to generate LLVM code to execute the program
@@ -828,7 +829,66 @@ public final class Encode extends TreeVisitorBase<String>
     return retval;
   }
 
-  //@Override public String visit()
+  @Override public String visit(final ClassDeclaration cd)
+  {
+    ClassType ct = ClassType.getInstance(cd.getClassName());
+    //visit constructor decls
+    visitEach(ct.getConstructors());
 
+    //visit method decls
+    visitEach(ct.getMethodDecls(false));
+
+    return null;
+  }
+
+  @Override public String visit(final ConstructorDeclaration cd)
+  {
+    ClassType ct = cd.getClassType();
+    String ctString = ct.encode();
+
+    emit("; constructor declaration for class " + ct.getName());
+    StringBuilder sb = new StringBuilder(200);
+
+    //print method signature
+    sb.append("define void ");
+    sb.append(cd.getEncodedName());
+    sb.append("( ");
+    sb.append(cd.encodeParams());
+    sb.append(" ) {");
+    emit(sb.toString());
+
+    indentation += increment;
+
+    //copy params to their local names
+    emit("; copy constructor params");
+    String contextCast = getTemp();
+    String thisVar = "%this";
+
+    emit(contextCast + " = bitcast i8* %context to " + ctString);
+    emit(thisVar + " = alloca " + ctString);
+    emit("store " + ctString + " " + contextCast + ", " + ctString + "* " + thisVar);
+
+    int paramNum = 0;
+    for(NameTypeDepth ntd : cd.getParams())
+    {
+      String varName = "%" + ntd.getName();
+      String varType = ntd.toType().encode();
+
+      emit(varName + " = alloca " + varType);
+      emit("store " + varType + " %param" + paramNum + ", " + varType + "* " + varName);
+      paramNum += 1;
+    }
+
+    emit("; constructor body");
+    visitEach(cd.getBody());
+
+    emit("ret void");
+    indentation -= increment;
+    emit("}");
+    emit("");
+
+    return null;
+  }
+  
 
 }

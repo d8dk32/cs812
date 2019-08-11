@@ -62,6 +62,11 @@ public class MethodDeclaration extends ClassBodyDeclaration
     return this.declaredMethod;
   }
 
+  public void setMethod(Method m)
+  {
+    this.declaredMethod = m;
+  }
+
   public Block getBody()
   {
     return this.body;

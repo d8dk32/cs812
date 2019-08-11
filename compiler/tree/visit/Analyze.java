@@ -610,6 +610,7 @@ public final class Analyze extends TreeVisitorBase<Tree>
     {
       Method newMeth = md.getMethod();
       newMeth.setContainingClass(md.getEnclosingClass());
+      md.setMethod(newMeth);
       cdType.addToMethods(newMeth);
     }
     visitEach(cdType.getMethodDecls(true)); //visit the method decls only after they've been "recognized" by the enclosing class

@@ -7,6 +7,7 @@ import tc.compiler.tree.type.*;
 import tc.compiler.tree.Block;
 import java.util.List;
 import java.util.ArrayList;
+import java.lang.StringBuilder;
 
 /**
  * Superclass for all AST statement nodes.
@@ -77,6 +78,24 @@ public class ConstructorDeclaration extends ClassBodyDeclaration
       encName += "$";
     }
     return encName;
+  }
+
+  public String encodeParams()
+  {
+    StringBuilder sb = new StringBuilder(200);
+    int paramNum = 0;
+
+    sb.append("i8* %context");
+    for(NameTypeDepth ntd : this.params)
+    {
+      sb.append(", ");
+      sb.append(ntd.toType().encode());
+      sb.append(" %param");
+      sb.append(paramNum);
+      paramNum++;
+    }
+
+    return sb.toString();
   }
 
   /** Apply a visitor to the node.
