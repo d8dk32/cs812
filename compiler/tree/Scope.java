@@ -74,7 +74,11 @@ public class Scope
 
     public ClassType peekClassAccess()
     {
-        return classAccess.peek();
+        if(!classAccess.empty())
+        {
+            return classAccess.peek();
+        }
+        return null;
     }
 
     public void pushClassAccess(ClassType ct)

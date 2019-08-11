@@ -94,5 +94,15 @@ public final class Method extends Type
     return encName;
   }
 
+  public String getName()
+  {
+    return this.methodName;
+  }
+
+  public List<NameTypeDepth> getParams()
+  {
+    return this.paramList;
+  }
+
 }
 

@@ -609,9 +609,12 @@ public final class Analyze extends TreeVisitorBase<Tree>
     for(MethodDeclaration md : cdType.getMethodDecls(true))
     {
       cdType.addToMethods(md.getMethod());
-      md.getMethod().setContainingClass(cdType);      
+      md.getMethod().setContainingClass(cdType); 
+      Message.log("md meth " + md.getMethod().getEncodedName());
     }
+    for(MethodDeclaration md : cdType.getMethodDecls(true)) { Message.log("meth Mesg: " + md.getMethod().getEncodedName());}
     visitEach(cdType.getMethodDecls(true)); //visit the method decls only after they've been "recognized" by the enclosing class
+    for(MethodDeclaration md : cdType.getMethodDecls(true)) { Message.log("meth Mesg: " + md.getMethod().getEncodedName());}
 
     //for each constructor declaration (cosntructors can't be inherited so we don't want the supers)
     for(ConstructorDeclaration cdecl : cdType.getConstructorDecls(false))
@@ -741,13 +744,18 @@ public final class Analyze extends TreeVisitorBase<Tree>
       boolean isSpecificMatch = true; //assume it is a "most specific" match until proven otherwise
       for(ConstructorDeclaration other : potentialMatches)
       {
-        if( Cast.isMethodInvocationConversionPermitted( NameTypeDepth.toTypes( other.getParams() ), 
+        if( !Cast.isMethodInvocationConversionPermitted( NameTypeDepth.toTypes( other.getParams() ), 
                                                         NameTypeDepth.toTypes( cd.getParams() )
                                                       )
           )
         {
-          matches.add(cd);
+          isSpecificMatch = false;
+          break;
         }
+      }
+      if(isSpecificMatch)
+      {
+        matches.add(cd);
       }
     }
 
@@ -781,6 +789,106 @@ public final class Analyze extends TreeVisitorBase<Tree>
     ci.setArgs(castedArgsList);
 
     return ci;
+  }
+
+  @Override public Tree visit(final MethodInvocation mi)
+  {
+    //determine the class to find the method from
+    ClassType classInScope = symbolTable.peekClassAccess();
+    if(mi.getPrimary() != null)
+    {
+      visitNode(mi.getPrimary());
+      if(mi.getPrimary().getType() instanceof ClassType)
+      {
+        classInScope = (ClassType) mi.getPrimary().getType();
+      }
+    }
+
+    if(classInScope == null)
+    {
+      Message.error(mi.getLoc(), "Invalid method invocation");
+      return mi;
+    }
+
+    if(mi.isSuper())
+    {
+      classInScope = classInScope.getSuperClass();
+    }
+
+    //find the most specific match for the method
+    List<Method> mList = classInScope.getMethods();
+    for(Method m : mList) { Message.log("meth Mesg: " + m.getEncodedName());}
+    List<Expression> argList = mi.getArgs();
+    visitEach(argList); //visit each param expression
+    ArrayList<Method> potentialMatches = new ArrayList<>(); //will contain a pared down list of constructors with the right number and types of params
+    ArrayList<Method> matches = new ArrayList<>(); //will containa further pared down list of most specific methods. hopefully just 1
+    ArrayList<Type> argTypes = new ArrayList<>();
+    for(Expression e : argList)
+    {
+      argTypes.add(e.getType()); //get all the arg types
+    }
+
+    for(Method m : mList)
+    {
+      //filter list down to only ones with the right number and type of params
+      if(m.getName().equals(mi.getMethodName()) && m.getParams().size() == argList.size() && Cast.isMethodInvocationConversionPermitted(NameTypeDepth.toTypes(m.getParams()), argTypes))
+      {
+        potentialMatches.add(m);
+      }
+    }
+
+    for(Method m : potentialMatches)
+    {
+      Message.log(m.getEncodedName());
+      boolean isSpecificMatch = true; //assume it is a "most specific" match until proven otherwise
+      for(Method other : potentialMatches)
+      {
+        if( Cast.isMethodInvocationConversionPermitted( NameTypeDepth.toTypes( other.getParams() ), 
+                                                        NameTypeDepth.toTypes( m.getParams() )
+                                                      )
+          )
+        {
+          isSpecificMatch = false;
+          break;
+        }
+      }
+      if(isSpecificMatch)
+      {
+        matches.add(m);
+      }
+    }
+
+    //if no matches were found or it is ambiguous
+    if(matches.size() != 1)
+    {
+      Message.error(mi.getLoc(), "No suitable method definition found");
+      return mi;
+    }
+
+    //a match was found
+    Method match = matches.get(0);
+    Message.log("Matched Constructor: " + match.getEncodedName());
+    mi.setMatch(match);
+    //don't forget to actually slip the Casts in as needed for method invocation conversion
+    List<Expression> castedArgsList = new ArrayList<>();
+    List<Type> matchParamTypes = NameTypeDepth.toTypes(match.getParams());
+    for(int i = 0; i < matchParamTypes.size(); i++)
+    {
+      Type argType = argTypes.get(i);
+      Type paramType = matchParamTypes.get(i);
+      if(Cast.isMethodInvocationConversionPermitted(paramType, argType) == Cast.ConversionType.WIDENING)
+      {
+        castedArgsList.add( new Cast(mi.getLoc(), paramType, mi.getArgs().get(i) ) );
+      }
+      else
+      {
+        castedArgsList.add(mi.getArgs().get(i));
+      }
+    }
+    mi.setArgs(castedArgsList);
+
+    return mi;
+
   }
 }
 

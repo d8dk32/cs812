@@ -16,6 +16,7 @@ public final class MethodInvocation extends Expression
     private String methodName;
     private List<Expression> args;
     private ClassType classType = null;
+    private Method match = null;
 
     public MethodInvocation(final Location loc, boolean isSuper, Expression primary, Identifier methodName, List<Expression> args)
     {
@@ -46,6 +47,11 @@ public final class MethodInvocation extends Expression
         return this.args;
     }
 
+    public void setArgs(List<Expression> newArgs)
+    {
+        this.args = newArgs;
+    }
+
     public ClassType getClassType()
     {
         return this.classType;
@@ -54,6 +60,16 @@ public final class MethodInvocation extends Expression
     public void setClassType(ClassType ct)
     {
         this.classType = ct;
+    }
+
+    public void setMatch(Method cd)
+    {
+        this.match = cd;
+    }
+
+    public Method getMatch()
+    {
+        return this.match;
     }
 
     /** Apply a visitor to the node.
