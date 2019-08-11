@@ -186,7 +186,11 @@ public final class ClassType extends ReferenceType
     if (cbd instanceof FieldDeclaration)
       this.fieldDeclarations.add((FieldDeclaration) cbd);
     else if (cbd instanceof MethodDeclaration)
-      this.methodDeclarations.add((MethodDeclaration) cbd);
+    {
+      MethodDeclaration md = (MethodDeclaration) cbd;
+      md.setEnclosingClass(this);
+      this.methodDeclarations.add(md);
+    }
     else if (cbd instanceof ConstructorDeclaration)
       this.constructorDeclarations.add((ConstructorDeclaration) cbd);
   }
@@ -208,7 +212,6 @@ public final class ClassType extends ReferenceType
 
   public void addToMethods(Method meth)
   {
-    meth.setContainingClass(this);
     this.methods.add(meth);
   }
 

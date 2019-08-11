@@ -1,6 +1,6 @@
 ; source file: methodCall.t
 ; T version: 1.0
-; compiled: Tue Aug 06 20:55:02 EDT 2019
+; compiled: Sun Aug 11 10:00:45 EDT 2019
 
 ; declarations for the runtime support functions
 declare void @t_rt_alloc_init()

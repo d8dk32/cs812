@@ -22,7 +22,7 @@ public class MethodDeclaration extends ClassBodyDeclaration
   private Block body;
   private String name;
   private Method declaredMethod;
-
+  private ClassType enclosingClass;
   
   public MethodDeclaration(final Location loc, String type, int typeDims, String name, List<NameTypeDepth> params, Block body)
   {
@@ -70,6 +70,16 @@ public class MethodDeclaration extends ClassBodyDeclaration
   public String getName()
   {
     return this.name;
+  }
+
+  public ClassType getEnclosingClass()
+  {
+    return this.enclosingClass;
+  }
+
+  public void setEnclosingClass(ClassType encClass)
+  {
+    this.enclosingClass = encClass;
   }
 
   /** Apply a visitor to the node.

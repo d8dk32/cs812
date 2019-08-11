@@ -114,6 +114,8 @@ public final class Cast extends Expression
         {
             ConversionType isMICP = isMethodInvocationConversionPermitted(toTypes.get(i), fromTypes.get(i));
             allow = (isMICP == ConversionType.WIDENING || isMICP == ConversionType.IDENTITY);
+            if(!allow)
+                break;
         }
         return allow;
     }

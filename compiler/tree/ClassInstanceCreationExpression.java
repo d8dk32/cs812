@@ -50,13 +50,18 @@ public class ClassInstanceCreationExpression extends Expression
     return this.args;
   }
 
+  public void setArgs(List<Expression> newArgs)
+  {
+    this.args = newArgs;
+  }
+
   //get and set constructor associated with this class isntance creation expr
-  public ConstructorDeclaration getConstructor()
+  public ConstructorDeclaration getMatch()
   {
     return this.constructor;
   }
 
-  public void setConstructor(ConstructorDeclaration cd)
+  public void setMatch(ConstructorDeclaration cd)
   {
     this.constructor = cd;
   }
