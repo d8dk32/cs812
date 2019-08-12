@@ -1,0 +1,27 @@
+<head>
+<title> AST for methRet.t</title>
+</head>
+<body>
+<pre>
+CompilationUnit
+[classes]
+  Class A extends Object
+    Method Declaration: int meth1()
+      Method Body: 
+      Start Block -> 
+        Return Statement
+          IntegerLiteral (int) 42
+      End Block <- 
+[main block]
+  Declaration: A
+    Identifier a
+  ExpressionStatement: 
+    Assignment: 
+      Identifier a
+      Class instantiation: class A
+  OutputStatement
+    Method Invocation: meth1
+      on object: 
+      Identifier a
+      with args: 
+</pre>

@@ -1,0 +1,41 @@
+<head>
+<title> AST for superMethodCall.t</title>
+</head>
+<body>
+<pre>
+CompilationUnit
+[classes]
+  Class A extends Object
+    Method Declaration: int meth1()
+      Method Body: 
+      Start Block -> 
+        OutputStatement
+          IntegerLiteral (int) 42
+      End Block <- 
+  Class B extends A
+    Method Declaration: int meth1()
+      Method Body: 
+      Start Block -> 
+        OutputStatement
+          IntegerLiteral (int) 4242
+      End Block <- 
+    Method Declaration: int meth2()
+      Method Body: 
+      Start Block -> 
+        ExpressionStatement: 
+          Method Invocation: super.meth1
+            with args: 
+      End Block <- 
+[main block]
+  Declaration: B
+    Identifier b
+  ExpressionStatement: 
+    Assignment: 
+      Identifier b
+      Class instantiation: class B
+  ExpressionStatement: 
+    Method Invocation: meth2
+      on object: 
+      Identifier b
+      with args: 
+</pre>
