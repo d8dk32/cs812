@@ -426,6 +426,7 @@ public final class Encode extends TreeVisitorBase<String>
 
   /** visit assignment node */
   @Override public String visit(final Assignment assignment) {
+    Message.log("Assignment: ");
     final String result = visitNode(assignment.getExpression());
     String assignmentType = assignment.getExpression().getType().encode();
     if(assignment.getExpression().getType().isArrayType())
@@ -438,10 +439,12 @@ public final class Encode extends TreeVisitorBase<String>
 
     if(assignment.getIdentifier() instanceof Identifier)
     { 
+      Message.log("Assign to id " +  assignment.getLineNumber());
       id = visitNode((Identifier) assignment.getIdentifier());
     }
     else if (assignment.getIdentifier() instanceof ArrayAccess)
     { 
+      Message.log("Assign to arr access " + assignment.getLineNumber());
       id = visitNode((ArrayAccess) assignment.getIdentifier()); 
       if( ((ArrayAccess) assignment.getIdentifier()).getBaseType().getDepth() > 1 )
       {
@@ -452,6 +455,7 @@ public final class Encode extends TreeVisitorBase<String>
     }
     else if (assignment.getIdentifier() instanceof FieldAccess)
     {
+      Message.log("Assign to field access " + assignment.getLineNumber());
       id = visitNode((FieldAccess) assignment.getIdentifier());
     }
     
@@ -828,6 +832,23 @@ public final class Encode extends TreeVisitorBase<String>
     //finally, bitcast that i8* back to the class type
     emit(retval + " = bitcast i8* " + objectTemp + " to " + classType);
 
+    if(cice.getMatch() != null)
+    {
+      //if there is a valid constructor
+      StringBuilder sb = new StringBuilder(200);
+      sb.append("i8* " + objectTemp);
+
+      for(Expression expr : cice.getArgs())
+      {
+        sb.append(", ");
+        sb.append(expr.getType().encode());
+        sb.append(" ");
+        sb.append(visitNode(expr));
+      }
+
+      emit("call void " + cice.getMatch().getEncodedName() + "(" + sb.toString() + ")");
+    }
+    
     return retval;
   }
 
@@ -869,14 +890,6 @@ public final class Encode extends TreeVisitorBase<String>
 
     //copy params to their local names
     emit("; copy constructor params");
-    String contextCast = getTemp();
-    String thisVar = "%this";
-    String loadThisTemp = getTemp();
-
-    emit(contextCast + " = bitcast i8* %context to " + ctString + "* ");
-    emit(loadThisTemp + " = load " + ctString + ", " + ctString + "* " + contextCast);
-    emit(thisVar + " = alloca " + ctString);
-    emit("store " + ctString + " " + loadThisTemp + ", " + ctString + "* " + thisVar);
 
     int paramNum = 0;
     for(NameTypeDepth ntd : cd.getParams())
@@ -889,8 +902,31 @@ public final class Encode extends TreeVisitorBase<String>
       paramNum += 1;
     }
 
-    emit("; constructor body");
-    visitEach(cd.getBody());
+    List<Statement> bodyList = cd.getBody();
+
+    //if the body starts with a constructor invocation, pop it off and visit it first
+    if(!bodyList.isEmpty() && bodyList.get(0) instanceof ConstructorInvocation)
+    {
+      visitNode(bodyList.remove(0));
+    }
+
+    //then set up the "this" context
+    String contextCast = getTemp();
+    String thisVar = "%this";
+    String loadThisTemp = getTemp();
+
+    emit(contextCast + " = bitcast i8* %context to " + ctString + "* ");
+    emit(loadThisTemp + " = load " + ctString + ", " + ctString + "* " + contextCast);
+    emit(thisVar + " = alloca " + ctString);
+    emit("store " + ctString + " " + loadThisTemp + ", " + ctString + "* " + thisVar);
+
+    emit("; rest of constructor body");
+    visitEach(bodyList);
+
+    //store the (potentially) modified %this back into the ptr it was passed in on
+    String storeThisTemp = getTemp();
+    emit(storeThisTemp + " = load " + ctString + ", " + ctString + "* " + thisVar);
+    emit("store " + ctString + " " + storeThisTemp + ", " + ctString + "* " + contextCast);
 
     emit("ret void");
     indentation -= increment;
@@ -912,7 +948,8 @@ public final class Encode extends TreeVisitorBase<String>
     StringBuilder sb = new StringBuilder(200);
 
     //print method signature
-    sb.append("define void ");
+    sb.append("define ");
+    sb.append(md.getReturnType().encode() + " "); 
     sb.append(md.getMethod().getEncodedName());
     sb.append("( ");
     sb.append(md.getMethod().encodeParams());
@@ -922,38 +959,103 @@ public final class Encode extends TreeVisitorBase<String>
     indentation += increment;
 
      //copy params to their local names
-     emit("; copy constructor params");
-     String thisVar = "%this";
+     emit("; copy method params");
+     
+    //set up the "this" context
+    String contextCast = getTemp();
+    String thisVar = "%this";
+    String loadThisTemp = getTemp();
+
+    emit(contextCast + " = bitcast i8* %context to " + ctString + "* ");
+    emit(loadThisTemp + " = load " + ctString + ", " + ctString + "* " + contextCast);
+    emit(thisVar + " = alloca " + ctString);
+    emit("store " + ctString + " " + loadThisTemp + ", " + ctString + "* " + thisVar);
+
+    //copy params to their local names
+    emit("; copy method params");
+    int paramNum = 0;
+    for(NameTypeDepth ntd : md.getMethod().getParams())
+    {
+      String varName = "%" + ntd.getName();
+      String varType = ntd.toType().encode();
+
+      emit(varName + " = alloca " + varType);
+      emit("store " + varType + " %param" + paramNum + ", " + varType + "* " + varName);
+      paramNum += 1;
+    }
  
-     emit(thisVar + " = alloca " + ctString);
-     emit("store " + ctString + " " + "%context" + ", " + ctString + "* " + thisVar);
+    emit("; method body");
+    visitNode(md.getBody());
+
+     //store the (potentially) modified %this back into the ptr it was passed in on
+    String storeThisTemp = getTemp();
+    emit(storeThisTemp + " = load " + ctString + ", " + ctString + "* " + thisVar);
+    emit("store " + ctString + " " + storeThisTemp + ", " + ctString + "* " + contextCast);
  
-     int paramNum = 0;
-     for(NameTypeDepth ntd : md.getMethod().getParams())
-     {
-       String varName = "%" + ntd.getName();
-       String varType = ntd.toType().encode();
- 
-       emit(varName + " = alloca " + varType);
-       emit("store " + varType + " %param" + paramNum + ", " + varType + "* " + varName);
-       paramNum += 1;
-     }
- 
-     emit("; constructor body");
-     visitNode(md.getBody());
- 
-     emit("ret void");
-     indentation -= increment;
-     emit("}");
-     emit("");
- 
-     symbolTable.popScope();
-     return null;
+    emit("ret " + md.getReturnType().encode() + " " + md.getReturnType().encodeZeroValue());
+    indentation -= increment;
+    emit("}");
+    emit("");
+
+    symbolTable.popScope();
+    return null;
   }
   
   @Override public String visit(ImpliedThis it)
   {
     return "%this";
+  }
+
+  @Override public String visit(ConstructorInvocation ci)
+  {
+    StringBuilder sb = new StringBuilder(200);
+    sb.append("i8* %context");
+
+    for(Expression expr : ci.getArgs())
+    {
+      sb.append(", ");
+      sb.append(expr.getType().encode());
+      sb.append(" ");
+      sb.append(visitNode(expr));
+    }
+
+
+    emit("call void " + ci.getMatch().getEncodedName() + "(" + sb.toString() + ")");
+
+    return null;
+  }
+
+  @Override public String visit(MethodInvocation mi)
+  {
+    Method meth = mi.getMatch();
+    StringBuilder sb = new StringBuilder(200);
+
+    if(mi.getPrimary() == null)
+    {
+      //method call is in one of 2 formats: Identifier (Args) OR super.Identifier(args)
+      sb.append("i8* %context");
+    }
+    else 
+    {
+      //method call is in format Primary.Identifier(Args)
+      Expression primary = mi.getPrimary();
+      String primaryTemp = visitNode(primary);
+      String primaryBitcast = getTemp();
+      emit(primaryBitcast + " = bitcast " + primary.getType().encode() + " " + primaryTemp +  " to i8*");
+      sb.append("i8* " + primaryBitcast);
+    }
+
+    for(Expression expr : mi.getArgs())
+    {
+      sb.append(", ");
+      sb.append(expr.getType().encode());
+      sb.append(" ");
+      sb.append(visitNode(expr));
+    }
+
+    emit("call " + meth.getReturnType().encode() + " " + meth.getEncodedName() + "(" + sb.toString() + ")");
+
+    return null;
   }
 
 }

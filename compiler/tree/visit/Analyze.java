@@ -227,6 +227,7 @@ public final class Analyze extends TreeVisitorBase<Tree>
         }
         //the field exists on the class, so it's actually a field access on an ImpliedThis
         //wrap the identifier in a field access on an implied-this and return the field access
+        Message.log("implied this field access found: " + identifier.getName());
         FieldAccess thisAccess = new FieldAccess(identifier.getLoc(), 
                                                  new ImpliedThis(identifier.getLoc(), classInScope),
                                                  identifier);
@@ -301,8 +302,20 @@ public final class Analyze extends TreeVisitorBase<Tree>
     //visit its child nodes
     if(assignment.getIdentifier() instanceof Identifier)
     { 
-      visitNode((Identifier) assignment.getIdentifier()); 
-      lhsType = ((Identifier) assignment.getIdentifier()).getType(); 
+      Message.log("Assign to id " +  assignment.getLineNumber());
+      Tree t = visitNode((Identifier) assignment.getIdentifier()); 
+      if(t instanceof FieldAccess)
+      {
+        Message.log("Actually a field access " +  assignment.getLineNumber());
+        FieldAccess theFa = (FieldAccess) t;
+        lhsType = theFa.getType();
+        LeftSide theLs = (LeftSide) theFa;
+        assignment.setIdentifier(theLs);
+      }
+      else if (t instanceof Identifier)
+      {
+        lhsType = ((Identifier) assignment.getIdentifier()).getType(); 
+      }
     }
     else if (assignment.getIdentifier() instanceof ArrayAccess)
     { 
@@ -701,7 +714,7 @@ public final class Analyze extends TreeVisitorBase<Tree>
     else{
       cice.setType(ct);
     }
-
+    
     //TODO
     //handle constructor args at some point
     //find matching constructor declaration
@@ -746,34 +759,32 @@ public final class Analyze extends TreeVisitorBase<Tree>
       }
     }
 
-    //if no matches were found or it is ambiguous
-    if(matches.size() == 0)
+    //if a match was found
+    if(matches.size() > 0)
     {
-      Message.error(cice.getLoc(), "No suitable constructor definition found ");
-      return cice;
+      //a match was found
+      ConstructorDeclaration match = matches.get(0);
+      Message.log("Matched Constructor: " + match.getEncodedName());
+      cice.setMatch(match);
+      //don't forget to actually slip the Casts in as needed for method invocation conversion
+      List<Expression> castedArgsList = new ArrayList<>();
+      List<Type> matchParamTypes = NameTypeDepth.toTypes(match.getParams());
+      for(int i = 0; i < matchParamTypes.size(); i++)
+      {
+        Type argType = argTypes.get(i);
+        Type paramType = matchParamTypes.get(i);
+        if(Cast.isMethodInvocationConversionPermitted(paramType, argType) == Cast.ConversionType.WIDENING)
+        {
+          castedArgsList.add( new Cast(cice.getLoc(), paramType, cice.getArgs().get(i) ) );
+        }
+        else
+        {
+          castedArgsList.add(cice.getArgs().get(i));
+        }
+      }
+      cice.setArgs(castedArgsList);
     }
 
-    //a match was found
-    ConstructorDeclaration match = matches.get(0);
-    Message.log("Matched Constructor: " + match.getEncodedName());
-    cice.setMatch(match);
-    //don't forget to actually slip the Casts in as needed for method invocation conversion
-    List<Expression> castedArgsList = new ArrayList<>();
-    List<Type> matchParamTypes = NameTypeDepth.toTypes(match.getParams());
-    for(int i = 0; i < matchParamTypes.size(); i++)
-    {
-      Type argType = argTypes.get(i);
-      Type paramType = matchParamTypes.get(i);
-      if(Cast.isMethodInvocationConversionPermitted(paramType, argType) == Cast.ConversionType.WIDENING)
-      {
-        castedArgsList.add( new Cast(cice.getLoc(), paramType, cice.getArgs().get(i) ) );
-      }
-      else
-      {
-        castedArgsList.add(cice.getArgs().get(i));
-      }
-    }
-    cice.setArgs(castedArgsList);
     return cice;
   }
 

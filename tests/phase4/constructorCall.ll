@@ -1,6 +1,6 @@
 ; source file: constructorCall.t
 ; T version: 1.0
-; compiled: Sun Aug 11 12:58:11 EDT 2019
+; compiled: Mon Aug 12 15:44:53 EDT 2019
 
 ; declarations for the runtime support functions
 declare void @t_rt_alloc_init()
@@ -30,6 +30,36 @@ declare void @t_rt_runtime_cast_check(i32, i8*, i8*)
 %class$B =  type { i8* }
 %class$Object =  type { i8* }
 
+; constructor declaration for class B
+define void @B$constructor$( i8* %context ) {
+  ; copy constructor params
+  %temp0 = bitcast i8* %context to %class$B* 
+  %temp1 = load %class$B, %class$B* %temp0
+  %this = alloca %class$B
+  store %class$B %temp1, %class$B* %this
+  ; rest of constructor body
+  ; call to runtime function to output a value
+  call void @t_rt_print_int(i32 17)
+  %temp2 = load %class$B, %class$B* %this
+  store %class$B %temp2, %class$B* %temp0
+  ret void
+}
+
+; constructor declaration for class A
+define void @A$constructor$( i8* %context ) {
+  ; copy constructor params
+  %temp3 = bitcast i8* %context to %class$A* 
+  %temp4 = load %class$A, %class$A* %temp3
+  %this = alloca %class$A
+  store %class$A %temp4, %class$A* %this
+  ; rest of constructor body
+  ; call to runtime function to output a value
+  call void @t_rt_print_int(i32 7)
+  %temp5 = load %class$A, %class$A* %this
+  store %class$A %temp5, %class$A* %temp3
+  ret void
+}
+
 ; main block
 define void @main() {
   call void @t_rt_alloc_init()
@@ -38,26 +68,28 @@ define void @main() {
   ; store empty value on declaration
   store %class$A* null, %class$A** %a
   ; class instance creation
-  %temp1 = getelementptr %class$A*, %class$A** null, i32 1
-  %temp2 = ptrtoint %class$A** %temp1 to i64
-  %temp3 = call i8* @t_rt_alloc(i64 %temp2, i32 7)
-  %temp4 = bitcast i8* %temp3 to [1 x i8*]**
-  store [1 x i8*]* @A$VMT, [1 x i8*]** %temp4
-  %temp0 = bitcast i8* %temp3 to %class$A*
+  %temp7 = getelementptr %class$A*, %class$A** null, i32 1
+  %temp8 = ptrtoint %class$A** %temp7 to i64
+  %temp9 = call i8* @t_rt_alloc(i64 %temp8, i32 7)
+  %temp10 = bitcast i8* %temp9 to [1 x i8*]**
+  store [1 x i8*]* @A$VMT, [1 x i8*]** %temp10
+  %temp6 = bitcast i8* %temp9 to %class$A*
+  call void @A$constructor$(i8* %temp9)
   ; store assigned value
-  store %class$A* %temp0, %class$A** %a
+  store %class$A* %temp6, %class$A** %a
   ; declaration statement
   %b = alloca %class$B*
   ; store empty value on declaration
   store %class$B* null, %class$B** %b
   ; class instance creation
-  %temp6 = getelementptr %class$B*, %class$B** null, i32 1
-  %temp7 = ptrtoint %class$B** %temp6 to i64
-  %temp8 = call i8* @t_rt_alloc(i64 %temp7, i32 9)
-  %temp9 = bitcast i8* %temp8 to [1 x i8*]**
-  store [1 x i8*]* @B$VMT, [1 x i8*]** %temp9
-  %temp5 = bitcast i8* %temp8 to %class$B*
+  %temp12 = getelementptr %class$B*, %class$B** null, i32 1
+  %temp13 = ptrtoint %class$B** %temp12 to i64
+  %temp14 = call i8* @t_rt_alloc(i64 %temp13, i32 9)
+  %temp15 = bitcast i8* %temp14 to [1 x i8*]**
+  store [1 x i8*]* @B$VMT, [1 x i8*]** %temp15
+  %temp11 = bitcast i8* %temp14 to %class$B*
+  call void @B$constructor$(i8* %temp14)
   ; store assigned value
-  store %class$B* %temp5, %class$B** %b
+  store %class$B* %temp11, %class$B** %b
   ret void
 }

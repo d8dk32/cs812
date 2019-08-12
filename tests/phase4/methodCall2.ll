@@ -1,6 +1,6 @@
 ; source file: methodCall2.t
 ; T version: 1.0
-; compiled: Tue Aug 06 20:56:28 EDT 2019
+; compiled: Mon Aug 12 16:19:23 EDT 2019
 
 ; declarations for the runtime support functions
 declare void @t_rt_alloc_init()
@@ -28,6 +28,32 @@ declare void @t_rt_runtime_cast_check(i32, i8*, i8*)
 %class$A =  type { i8* }
 %class$Object =  type { i8* }
 
+; method declaration meth1
+define i32 @A$meth1$int$int$( i8* %context, i32 %param0, i32 %param1 ) {
+  ; copy method params
+  %temp0 = bitcast i8* %context to %class$A* 
+  %temp1 = load %class$A, %class$A* %temp0
+  %this = alloca %class$A
+  store %class$A %temp1, %class$A* %this
+  ; copy method params
+  %a = alloca i32
+  store i32 %param0, i32* %a
+  %b = alloca i32
+  store i32 %param1, i32* %b
+  ; method body
+  ; load value from variable
+  %temp2 = load i32, i32* %a
+  ; load value from variable
+  %temp3 = load i32, i32* %b
+  ; add
+  %temp4 = add i32 %temp2, %temp3
+  ; call to runtime function to output a value
+  call void @t_rt_print_int(i32 %temp4)
+  %temp5 = load %class$A, %class$A* %this
+  store %class$A %temp5, %class$A* %temp0
+  ret i32 0
+}
+
 ; main block
 define void @main() {
   call void @t_rt_alloc_init()
@@ -36,13 +62,17 @@ define void @main() {
   ; store empty value on declaration
   store %class$A* null, %class$A** %a
   ; class instance creation
-  %temp1 = getelementptr %class$A*, %class$A** null, i32 1
-  %temp2 = ptrtoint %class$A** %temp1 to i64
-  %temp3 = call i8* @t_rt_alloc(i64 %temp2, i32 9)
-  %temp4 = bitcast i8* %temp3 to [1 x i8*]**
-  store [1 x i8*]* @A$VMT, [1 x i8*]** %temp4
-  %temp0 = bitcast i8* %temp3 to %class$A*
+  %temp7 = getelementptr %class$A*, %class$A** null, i32 1
+  %temp8 = ptrtoint %class$A** %temp7 to i64
+  %temp9 = call i8* @t_rt_alloc(i64 %temp8, i32 9)
+  %temp10 = bitcast i8* %temp9 to [1 x i8*]**
+  store [1 x i8*]* @A$VMT, [1 x i8*]** %temp10
+  %temp6 = bitcast i8* %temp9 to %class$A*
   ; store assigned value
-  store %class$A* %temp0, %class$A** %a
+  store %class$A* %temp6, %class$A** %a
+  ; load value from variable
+  %temp11 = load %class$A*, %class$A** %a
+  %temp12 = bitcast %class$A* %temp11 to i8*
+  call i32 @A$meth1$int$int$(i8* %temp12, i32 20, i32 22)
   ret void
 }

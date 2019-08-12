@@ -10,10 +10,16 @@ CompilationUnit
       Constructor Body: 
       ExpressionStatement: 
         Assignment: 
-          Identifier a2
+          Field Access: 
+            .
+            Identifier a2
           ADD (int) 
           Identifier i
           Identifier j
+      OutputStatement
+        Field Access: 
+          .
+          Identifier a2
     Declaration: int
       Identifier a2
   Class B extends A
@@ -25,6 +31,26 @@ CompilationUnit
         ADD (int) 
         Identifier i
         IntegerLiteral (int) 5
+      OutputStatement
+        Field Access: 
+          .
+          Identifier a2
+    Constructor Declaration: B( int i, int j, )
+      Constructor Body: 
+      ExpressionStatement: 
+        Assignment: 
+          Field Access: 
+            .
+            Identifier a2
+          ADD (int) 
+          ADD (int) 
+          Identifier i
+          Identifier j
+          IntegerLiteral (int) 1
+      OutputStatement
+        Field Access: 
+          .
+          Identifier a2
 [main block]
   Declaration: B
     Identifier b

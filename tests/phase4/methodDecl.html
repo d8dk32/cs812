@@ -17,10 +17,12 @@ CompilationUnit
     Method Declaration: int meth2()
       Method Body: 
       Start Block -> 
-        OutputStatement
-          Field Access: 
-            .
-            Identifier a
+        ExpressionStatement: 
+          Assignment: 
+            Field Access: 
+              .
+              Identifier a
+            IntegerLiteral (int) 42
       End Block <- 
     Method Declaration: int meth3()
       Method Body: 

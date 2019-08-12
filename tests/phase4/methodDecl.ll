@@ -1,6 +1,6 @@
 ; source file: methodDecl.t
 ; T version: 1.0
-; compiled: Sun Aug 11 21:46:32 EDT 2019
+; compiled: Mon Aug 12 09:30:39 EDT 2019
 
 ; declarations for the runtime support functions
 declare void @t_rt_alloc_init()
@@ -31,18 +31,18 @@ declare void @t_rt_runtime_cast_check(i32, i8*, i8*)
 %class$Object =  type { i8* }
 
 ; method declaration meth1
-define void @A$meth1$( %class$A %context ) {
+define i32 @A$meth1$( %class$A %context ) {
   ; copy constructor params
   %this = alloca %class$A
   store %class$A %context, %class$A* %this
   ; constructor body
   ; call to runtime function to output a value
   call void @t_rt_print_int(i32 1)
-  ret void
+  ret i32 0
 }
 
 ; method declaration meth2
-define void @A$meth2$( %class$A %context ) {
+define i32 @A$meth2$( %class$A %context ) {
   ; copy constructor params
   %this = alloca %class$A
   store %class$A %context, %class$A* %this
@@ -56,25 +56,24 @@ define void @A$meth2$( %class$A %context ) {
   br label %label1
   label1:
   %temp2 = getelementptr %class$A, %class$A* %this, i32 0, i32 1
-  %temp4 = load i32, i32* %temp2
-  ; call to runtime function to output a value
-  call void @t_rt_print_int(i32 %temp4)
-  ret void
+  ; store assigned value
+  store i32 42, i32* %temp2
+  ret i32 0
 }
 
 ; method declaration meth3
-define void @A$meth3$( %class$A %context ) {
+define i32 @A$meth3$( %class$A %context ) {
   ; copy constructor params
   %this = alloca %class$A
   store %class$A %context, %class$A* %this
   ; constructor body
   ; call to runtime function to output a value
   call void @t_rt_print_int(i32 3)
-  ret void
+  ret i32 0
 }
 
 ; method declaration meth4
-define void @B$meth4$int$intarr$A$( %class$B %context, i32 %param0, %array$int %param1, %class$A* %param2 ) {
+define %class$A* @B$meth4$int$intarr$A$( %class$B %context, i32 %param0, %array$int %param1, %class$A* %param2 ) {
   ; copy constructor params
   %this = alloca %class$B
   store %class$B %context, %class$B* %this
@@ -87,18 +86,18 @@ define void @B$meth4$int$intarr$A$( %class$B %context, i32 %param0, %array$int %
   ; constructor body
   ; call to runtime function to output a value
   call void @t_rt_print_int(i32 1)
-  ret void
+  ret %class$A* null
 }
 
 ; method declaration meth5
-define void @B$meth5$( %class$B %context ) {
+define %class$B* @B$meth5$( %class$B %context ) {
   ; copy constructor params
   %this = alloca %class$B
   store %class$B %context, %class$B* %this
   ; constructor body
   ; call to runtime function to output a value
   call void @t_rt_print_int(i32 5)
-  ret void
+  ret %class$B* null
 }
 
 ; main block

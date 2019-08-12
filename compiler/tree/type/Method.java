@@ -79,6 +79,11 @@ public final class Method extends Type
     return this.containingClass;
   }
 
+  public Type getReturnType()
+  {
+    return this.returnType;
+  }
+
   public String getEncodedName()
   {
     String encName = "@";
@@ -109,8 +114,7 @@ public final class Method extends Type
     StringBuilder sb = new StringBuilder(200);
     int paramNum = 0;
 
-    sb.append(getContainingClass().encodeType());
-    sb.append(" %context");
+    sb.append("i8* %context");
     for(NameTypeDepth ntd : this.paramList)
     {
       sb.append(", ");
