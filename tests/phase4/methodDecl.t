@@ -12,7 +12,7 @@ int main() {
 
 class B extends A {
   int b;
-  A meth4(int a, int[] b, A c) { out a; }
+  A meth4(int a, int[] b, A c) { out 1; }
   B meth5() { out 5; }
 }
 

@@ -26,7 +26,7 @@ import java.lang.StringBuilder;
 public final class Encode extends TreeVisitorBase<String>
 {
   //symbol table, doesn't seem useful yet
-  HashMap<String, TypeDepthPair> symbolTable = new HashMap<>(); 
+  Scope symbolTable = new Scope(); 
   Stack<String[]> whileStack = new Stack<>();
 
   // where to write the code
@@ -274,6 +274,7 @@ public final class Encode extends TreeVisitorBase<String>
     visitEach(compilationUnit.getClasses());
 
     // generate code for the main block
+    symbolTable.pushScope();
     emit("; main block");
     emit("define void @main() {");
     indentation += increment;
@@ -282,6 +283,7 @@ public final class Encode extends TreeVisitorBase<String>
     emit("ret void");
     indentation -= increment;
     emit("}");
+    symbolTable.popScope();
 
     return null;
   }
@@ -343,9 +345,9 @@ public final class Encode extends TreeVisitorBase<String>
     {
       String temp = getTemp();
       emit("; load value from variable");
-      if (symbolTable.get(id).getDepth() == 0)
+      if (symbolTable.getSymbol(id).getDepth() == 0)
         emit(temp + " = load " + identifier.getType().encode() + ", " + identifier.getType().encode() + "* " + pointer);
-      else if (symbolTable.get(id).getDepth() > 0) 
+      else if (symbolTable.getSymbol(id).getDepth() > 0) 
         emit(temp + " = load " + identifier.getType().encode() + "*, " + identifier.getType().encode() + "** " + pointer);
       return temp;
     }
@@ -387,7 +389,7 @@ public final class Encode extends TreeVisitorBase<String>
             varType = ClassType.getInstance(declStatement.getType());
           }
       }
-      symbolTable.put(i.getName(),
+      symbolTable.putSymbol(i.getName(),
             new TypeDepthPair(varType, depth));     
 
       //get variable name and type
@@ -831,20 +833,26 @@ public final class Encode extends TreeVisitorBase<String>
 
   @Override public String visit(final ClassDeclaration cd)
   {
+    symbolTable.pushScope(); 
     ClassType ct = ClassType.getInstance(cd.getClassName());
+    symbolTable.pushClassAccess(ct);
+    symbolTable.putAllSymbols(ct.getFields());
     //visit constructor decls
     visitEach(ct.getConstructors());
 
     //visit method decls
     visitEach(ct.getMethodDecls(false));
-
+    symbolTable.popScope();
+    symbolTable.popClassAccess();
     return null;
   }
 
   @Override public String visit(final ConstructorDeclaration cd)
   {
+    symbolTable.pushScope();
+    symbolTable.putAllSymbols(cd.getParams());
     ClassType ct = cd.getClassType();
-    String ctString = ct.encode();
+    String ctString = ct.encodeType();
 
     emit("; constructor declaration for class " + ct.getName());
     StringBuilder sb = new StringBuilder(200);
@@ -863,10 +871,12 @@ public final class Encode extends TreeVisitorBase<String>
     emit("; copy constructor params");
     String contextCast = getTemp();
     String thisVar = "%this";
+    String loadThisTemp = getTemp();
 
-    emit(contextCast + " = bitcast i8* %context to " + ctString);
+    emit(contextCast + " = bitcast i8* %context to " + ctString + "* ");
+    emit(loadThisTemp + " = load " + ctString + ", " + ctString + "* " + contextCast);
     emit(thisVar + " = alloca " + ctString);
-    emit("store " + ctString + " " + contextCast + ", " + ctString + "* " + thisVar);
+    emit("store " + ctString + " " + loadThisTemp + ", " + ctString + "* " + thisVar);
 
     int paramNum = 0;
     for(NameTypeDepth ntd : cd.getParams())
@@ -887,8 +897,63 @@ public final class Encode extends TreeVisitorBase<String>
     emit("}");
     emit("");
 
+    symbolTable.popScope();
     return null;
   }
+
+  @Override public String visit(MethodDeclaration md)
+  {
+    symbolTable.pushScope();
+    symbolTable.putAllSymbols(md.getParams());
+    ClassType ct = md.getEnclosingClass();
+    String ctString = ct.encodeType();
+
+    emit("; method declaration " + md.getName());
+    StringBuilder sb = new StringBuilder(200);
+
+    //print method signature
+    sb.append("define void ");
+    sb.append(md.getMethod().getEncodedName());
+    sb.append("( ");
+    sb.append(md.getMethod().encodeParams());
+    sb.append(" ) {");
+    emit(sb.toString());
+
+    indentation += increment;
+
+     //copy params to their local names
+     emit("; copy constructor params");
+     String thisVar = "%this";
+ 
+     emit(thisVar + " = alloca " + ctString);
+     emit("store " + ctString + " " + "%context" + ", " + ctString + "* " + thisVar);
+ 
+     int paramNum = 0;
+     for(NameTypeDepth ntd : md.getMethod().getParams())
+     {
+       String varName = "%" + ntd.getName();
+       String varType = ntd.toType().encode();
+ 
+       emit(varName + " = alloca " + varType);
+       emit("store " + varType + " %param" + paramNum + ", " + varType + "* " + varName);
+       paramNum += 1;
+     }
+ 
+     emit("; constructor body");
+     visitNode(md.getBody());
+ 
+     emit("ret void");
+     indentation -= increment;
+     emit("}");
+     emit("");
+ 
+     symbolTable.popScope();
+     return null;
+  }
   
+  @Override public String visit(ImpliedThis it)
+  {
+    return "%this";
+  }
 
 }

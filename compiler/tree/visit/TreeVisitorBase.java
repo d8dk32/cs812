@@ -216,5 +216,10 @@ public class TreeVisitorBase<T> implements TreeVisitor<T>
   {
     return null;
   }
+
+  @Override public T visit(ImpliedThis it)
+  {
+    return null;
+  }
 }
 

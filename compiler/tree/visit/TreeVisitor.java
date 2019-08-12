@@ -62,5 +62,7 @@ public interface TreeVisitor<T>
 
   T visit(ConstructorInvocation ci);
 
+  T visit(ImpliedThis it);
+
 }
 

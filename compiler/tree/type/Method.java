@@ -74,7 +74,7 @@ public final class Method extends Type
     this.containingClass = ct;
   }
 
-  public ClassType getConatiningClass()
+  public ClassType getContainingClass()
   {
     return this.containingClass;
   }
@@ -102,6 +102,25 @@ public final class Method extends Type
   public List<NameTypeDepth> getParams()
   {
     return this.paramList;
+  }
+
+  public String encodeParams()
+  {
+    StringBuilder sb = new StringBuilder(200);
+    int paramNum = 0;
+
+    sb.append(getContainingClass().encodeType());
+    sb.append(" %context");
+    for(NameTypeDepth ntd : this.paramList)
+    {
+      sb.append(", ");
+      sb.append(ntd.toType().encode());
+      sb.append(" %param");
+      sb.append(paramNum);
+      paramNum++;
+    }
+
+    return sb.toString();
   }
 
 }

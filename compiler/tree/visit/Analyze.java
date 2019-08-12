@@ -211,8 +211,32 @@ public final class Analyze extends TreeVisitorBase<Tree>
     //if the identifier has not been defined, bug out.
     if (symbolTable.getSymbol(identifier.getName()) == null)
     {
-      Message.error(identifier.getLoc(), "undefined variable " + identifier.getName());
-      identifier.setType(ErrorType.getInstance());
+      if(symbolTable.peekClassAccess() == null)
+      {
+        Message.error(identifier.getLoc(), "undefined variable " + identifier.getName());
+        identifier.setType(ErrorType.getInstance());
+      }
+      else
+      {
+        //check if this is really an implied "this" field access
+        ClassType classInScope = symbolTable.peekClassAccess();
+        if(classInScope.getFieldIndex(identifier.getName()) == -1)
+        {
+          Message.error(identifier.getLoc(), "undefined variable " + identifier.getName());
+          identifier.setType(ErrorType.getInstance());
+        }
+        //the field exists on the class, so it's actually a field access on an ImpliedThis
+        //wrap the identifier in a field access on an implied-this and return the field access
+        FieldAccess thisAccess = new FieldAccess(identifier.getLoc(), 
+                                                 new ImpliedThis(identifier.getLoc(), classInScope),
+                                                 identifier);
+        thisAccess.setType(classInScope.fieldToType(identifier.getName()));
+        if(identifier.isLeftSide())
+          { thisAccess.setLeftSide(true); }
+        
+        return thisAccess;
+
+      }
     }
     else{
       Type type = symbolTable.getSymbol(identifier.getName()).getType();
@@ -602,8 +626,6 @@ public final class Analyze extends TreeVisitorBase<Tree>
         cdType.addToFields(ntd);
       }
     }
-    symbolTable.putAllSymbols(cdType.getFields());
-
 
     //for each method declaration
     for(MethodDeclaration md : cdType.getMethodDecls(true))

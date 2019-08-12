@@ -352,6 +352,16 @@ public final class ClassType extends ReferenceType
     return null;
   }
 
+  public Type fieldToType(String fieldName)
+  {
+    for(NameTypeDepth ntd : this.fields)
+    {
+      if (ntd.getName().equals(fieldName))
+        return ntd.toType();
+    }
+    return ErrorType.getInstance();
+  }
+
   public int getFieldDepth(String name)
   {
     for(NameTypeDepth ntd : this.fields)
